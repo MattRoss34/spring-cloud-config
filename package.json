@@ -1,6 +1,6 @@
 {
   "name": "spring-cloud-config",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "NodeJS configuration management library based on Spring Cloud Config.",
   "main": "index.js",
   "dependencies": {
