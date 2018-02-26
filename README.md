@@ -1,8 +1,12 @@
 # Spring-like Cloud Config for NodeJS Applications
 
+[![Build Status](https://travis-ci.org/MattRoss34/spring-cloud-config.svg?branch=master)](https://travis-ci.org/MattRoss34/spring-cloud-config)
+
 NodeJS application configuration using similar style to Spring Config and using the Spring Cloud Config Server for remote property sources.
 
 Depends on [cloud-config-client](https://www.npmjs.com/package/cloud-config-client) for the config server client functionality.
+
+Feature requests are welcome.
 
 ## Introduction
 
