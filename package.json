@@ -1,0 +1,37 @@
+{
+  "name": "spring-cloud-config",
+  "version": "1.0.1",
+  "description": "NodeJS configuration management library based on Spring Cloud Config.",
+  "main": "index.js",
+  "dependencies": {
+    "cloud-config-client": "^0.3.1",
+    "extend": "^3.0.1",
+    "js-yaml": "^3.8.2",
+    "sinon": "^4.4.2",
+    "winston": "^2.3.1",
+    "yargs": "^9.0.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "jsdoc": "^3.5.5"
+  },
+  "scripts": {
+    "test": "mocha test/**/*test.js",
+    "doc": "jsdoc index.js -R README.md -d doc"
+  },
+  "author": "Matthew Ross",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattross34/spring-cloud-config.git"
+  },
+  "keywords": [
+    "Spring Cloud",
+    "Cloud Config",
+    "Spring Cloud Config",
+    "configuration",
+    "client",
+    "config server"
+  ]
+}

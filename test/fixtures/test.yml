@@ -1,0 +1,4 @@
+#only used for unit testing
+test.unit.testBool: true
+test.unit.testString: testing
+test.unit.testNumber: 12345

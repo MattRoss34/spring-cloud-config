@@ -1,0 +1,24 @@
+# NPM
+dist/
+node_modules/
+npm-debug.log
+
+# Eclipse
+.project
+.settings/
+.externalToolBuilders/
+
+# JetBrains IDEs
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Mac
+.DS_Store
+
+# IntelliJ
+out/
+
+# Visual Studio Code
+.vscode

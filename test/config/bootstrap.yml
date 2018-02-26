@@ -1,0 +1,8 @@
+#Default config properties
+spring.cloud.config.enabled: true
+name: the-application-name
+endpoint: http://localhost:8888
+label: master
+---
+profiles: dev1,dev2
+endpoint: http://dev-config-server:8888

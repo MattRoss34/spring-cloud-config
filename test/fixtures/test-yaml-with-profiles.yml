@@ -1,0 +1,23 @@
+# default props applicable to all environments
+urlProperty: http://www.testdomain.com
+propertyGroup:
+  groupProperty: true
+---
+# props applicable only to env1
+profiles: env1
+
+urlProperty: http://www.testdomain1.com
+propertyGroup:
+  groupProperty: false
+
+---
+# props applicable only to env2
+profiles: env2
+
+urlProperty: http://www.testdomain2.com
+
+---
+# props applicable only to env3, 4, and 5
+profiles: env3,env4,env5
+
+urlProperty: http://www.testdomain-shared.com
