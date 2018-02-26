@@ -22,7 +22,7 @@ db:
     mongo:
         url: http://localhost:27017
 ---
-profiles: dev
+profiles: dev1,dev2
 db:
     mongo:
         url: http://dev-mongo-server:27017
@@ -36,7 +36,7 @@ name: my-application-name
 endpoint: http://localhost:8888
 label: master
 ---
-profiles: dev
+profiles: dev1,dev2
 endpoint: http://dev-config-server:8888
 ```
 
@@ -45,7 +45,7 @@ Consume the module in your script.
 const springCloudConfig = require('spring-cloud-config');
 let configOptions = {
     configPath: __dirname + '/config',
-    activeProfiles: ['dev'],
+    activeProfiles: ['dev1'],
     level: 'debug'
 };
 let myConfig = springCloudConfig.load(configOptions);
@@ -61,7 +61,15 @@ This module requires that you supply a folder path where it can expect to find t
 
 ### Support for Profiles
 
-As with any Yaml implementation, you can include multiple documents in each Yaml file using `---` as a separator. Additionally, this module allows you to define documents that apply to specific 'profiles', same as the 'spring.profiles' concept. If you include a `profiles` property in a given yaml document, those properties will only be included in your merged configuration result if any of the given profiles are found in the `options.activeProfiles` array.
+As with any Yaml implementation, you can include multiple documents in each Yaml file using `---` as a separator. Additionally, this module allows you to define documents that apply to specific 'profiles', same as the 'spring.profiles' concept. If you include a `profiles` property in a given yaml document, those properties will only be included in your merged configuration result if any of the given profiles are found in the `options.activeProfiles` array.  
+
+#### Applying Yaml Docs to Multiple Profiles
+
+You can apply the properties of a Yaml doc to multiple application profiles. Just provide a comma separated string of profile names in the doc's `profiles` property, like `profiles: dev1,dev2`.
+
+#### Excluding Yaml Docs from Profiles
+
+This module supports the `Not` operator (!) on profiles to provide for excluding configuration properties from specific profiles. Just prepend a '!' to the profile name you want to exclude the given yaml doc from, like `profiles: dev1,!dev2`.
 
 ### Remote Property Sources
 
