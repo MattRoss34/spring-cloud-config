@@ -63,14 +63,22 @@ describe('spring-cloud-config-client', function() {
 	});
 
 	describe("#parsePropertiesToObjects()", function () {
+		it("should skip undefined object", function () {
+			return new Promise((resolve, reject) => {
+				let mergedProperties;
+				let configObject = springCloudConfig.parsePropertiesToObjects(mergedProperties);
+				assert.deepEqual(configObject, {});
+				resolve();
+			});
+		});
 		it("should parse dot-separated properties into JS object", function () {
 			return new Promise((resolve, reject) => {
-				const mergedProperties = {
+				let mergedProperties = {
 					'test.unit.testBool': true,
 					'test.unit.testString': 'testing again',
 					'test.unit.testNumber': 12345
 				};
-				const expectedObject = {
+				let expectedObject = {
 					test: {
 						unit: {
 							testBool: true,
@@ -79,7 +87,7 @@ describe('spring-cloud-config-client', function() {
 						}
 					}
 				};
-				const configObject = springCloudConfig.parsePropertiesToObjects(mergedProperties);
+				let configObject = springCloudConfig.parsePropertiesToObjects(mergedProperties);
 				assert.deepEqual(configObject, expectedObject);
 				resolve();
 			});
@@ -89,14 +97,14 @@ describe('spring-cloud-config-client', function() {
 	describe("#createObjectForProperty()", function () {
 		it("should construct a JS Object given a Boolean property's keys and value", function () {
 			return new Promise((resolve, reject) => {
-				const expectedObjectFromBool = {
+				let expectedObjectFromBool = {
 					test: {
 						unit: {
 							testBool: true
 						}
 					}
 				};
-				const boolObject = springCloudConfig.createObjectForProperty(['test', 'unit', 'testBool'], true);
+				let boolObject = springCloudConfig.createObjectForProperty(['test', 'unit', 'testBool'], true);
 				assert.deepEqual(boolObject, expectedObjectFromBool);
 				resolve();
 			});
@@ -104,14 +112,14 @@ describe('spring-cloud-config-client', function() {
 
 		it("should construct a JS Object given a String property's keys and value", function () {
 			return new Promise((resolve, reject) => {
-				const expectedObjectFromString = {
+				let expectedObjectFromString = {
 					test: {
 						unit: {
 							testString: 'testing'
 						}
 					}
 				};
-				const stringObject = springCloudConfig.createObjectForProperty(['test', 'unit', 'testString'], 'testing');
+				let stringObject = springCloudConfig.createObjectForProperty(['test', 'unit', 'testString'], 'testing');
 				assert.deepEqual(stringObject, expectedObjectFromString);
 				resolve();
 			});
@@ -119,14 +127,14 @@ describe('spring-cloud-config-client', function() {
 
 		it("should construct a JS Object given a Number property's keys and value", function () {
 			return new Promise((resolve, reject) => {
-				const expectedObjectFromNumber = {
+				let expectedObjectFromNumber = {
 					test: {
 						unit: {
 							testNumber: 12345
 						}
 					}
 				};
-				const numberObject = springCloudConfig.createObjectForProperty(['test', 'unit', 'testNumber'], 12345);
+				let numberObject = springCloudConfig.createObjectForProperty(['test', 'unit', 'testNumber'], 12345);
 				assert.deepEqual(numberObject, expectedObjectFromNumber);
 				resolve();
 			});
@@ -206,6 +214,32 @@ describe('spring-cloud-config-client', function() {
 				});
 	});
 
+	describe('#readCloudConfig()', function() {
+		it('should skip cloud config when not enabled', function() {
+			let bootstrapConfig = {
+				spring: {cloud: {config: {enabled: false}}}
+			};
+			return springCloudConfig.readCloudConfig(bootstrapConfig).then((config) => {
+				assert.deepEqual(config, {});
+			}, (error) => {
+				assert.fail('an error', 'success', error.message);
+			});
+		});
+
+		it('should skip cloud config if unreachable', function() {
+			let bootstrapConfig = {
+				spring: {cloud: {config: {enabled: true}}},
+				name: 'the-application-name',
+				endpoint: 'http://localhost:8888'
+			};
+			return springCloudConfig.readCloudConfig(bootstrapConfig).then((config) => {
+				assert.deepEqual(config, {});
+			}, (error) => {
+				assert.fail("Error", "Success", JSON.stringify(error.message));
+			});
+		});
+	});
+
 	describe('#load()', function() {
 
 		beforeEach(function () {
@@ -214,6 +248,41 @@ describe('spring-cloud-config-client', function() {
 
 		afterEach(function () {
 			this.sandbox.restore();
+		});
+
+		it('should fail without config path', function() {
+			let options = {
+				activeProfiles: []
+			}
+			return springCloudConfig.load(options).then((config) => {
+				assert.fail('did not fail', 'a failure', 'this attempt should fail');
+			}, (error) => {
+				assert.isOk('Success', 'Load failed as expected.');
+			});
+		});
+
+		it('should fail without activeProfiles', function() {
+			let options = {
+				configPath: './test/config',
+			}
+			return springCloudConfig.load(options).then((config) => {
+				assert.fail('did not fail', 'a failure', 'this attempt should fail');
+			}, (error) => {
+				assert.isOk('Success', 'Load failed as expected.');
+			});
+		});
+
+		it('should fail with invalid path', function() {
+			let options = {
+				configPath: './badPath/config',
+				activeProfiles: [],
+				level: 'debug'
+			}
+			return springCloudConfig.load(options).then((config) => {
+				assert.fail('did not fail', 'a failure', 'this attempt should fail');
+			}, (error) => {
+				assert.isOk('Success', 'Load failed as expected.');
+			});
 		});
 
 		it('should load default configs with no profile', function() {
@@ -233,6 +302,7 @@ describe('spring-cloud-config-client', function() {
 				assert.fail("Error", "Success", JSON.stringify(error.message));
 			});
 		});
+		
 		it('should load dev configs with dev profile', function() {
 			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
 				Promise.resolve({forEach(callback, aBoolValue) {}})
@@ -302,6 +372,37 @@ describe('spring-cloud-config-client', function() {
 				assert.fail("Error", "Success", JSON.stringify(error.message));
 			});
 		});
+	});
+
+	describe('#instance()', function() {
+
+		beforeEach(function () {
+			this.sandbox = sinon.sandbox.create();
+		});
+
+		afterEach(function () {
+			this.sandbox.restore();
+		});
+
+		it('should return instance with defaults', function() {
+			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
+				Promise.resolve({forEach(callback, aBoolValue) {}})
+			);
+			let options = {
+				configPath: './test/config',
+				activeProfiles: [],
+				level: 'debug'
+			}
+			return springCloudConfig.load(options).then((config) => {
+				let theConfig = springCloudConfig.instance();
+				assert.deepEqual(theConfig.name, 'the-application-name');
+				assert.deepEqual(theConfig.testUrl, 'http://www.default.com');
+				assert.deepEqual(theConfig.endpoint, 'http://localhost:8888');
+			}, (error) => {
+				assert.fail("Error", "Success", JSON.stringify(error.message));
+			});
+		});
+		
 	});
 
 });
