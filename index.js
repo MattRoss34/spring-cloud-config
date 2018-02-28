@@ -224,6 +224,7 @@ module.exports.instance = function() {
 };
 
 // To enable unit testing
+module.exports.readCloudConfig = readCloudConfig;
 module.exports.readYaml = readYaml;
 module.exports.shouldUseDocument = shouldUseDocument;
 module.exports.mergeProperties = mergeProperties;
