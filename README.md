@@ -24,6 +24,7 @@ npm install spring-cloud-config
 Define an application.yml in the location of your choice.
 #### application.yml
 ```yaml
+name: my-application-name
 db:
     mongo:
         url: http://localhost:27017
@@ -38,7 +39,6 @@ Define a bootstrap.yml in the location of your choice.
 #### bootstrap.yml
 ```yaml
 spring.cloud.config.enabled: true
-name: my-application-name
 endpoint: http://localhost:8888
 label: master
 ---
@@ -63,7 +63,7 @@ let myMongoUrl = myConfig.db.mongo.url;
 
 ### The Yaml Files
 
-This module requires that you supply a folder path where it can expect to find two files: `bootstrap.yml` and `application.yml`. The bootstrap yaml is used to configure your cloud config server properties, similar to Spring Cloud Config. The application yaml should be used for defining your application's configuration properties.
+This module requires that you supply a folder path where it can expect to find two files: `bootstrap.yml` and `application.yml`. The bootstrap yaml is used to configure your cloud config server properties, similar to Spring Cloud Config. The application yaml should be used for defining your application's configuration properties. Optionally, you can specify your application's name here, using the `name` property. This gives you the option of using a shared bootstrap.yml (i.e. shared with other apps) but still specify your individual application's name.
 
 ### Support for Profiles
 
@@ -89,7 +89,8 @@ Reads all defined property sources, including remote cloud config properties (if
 Parameter | Type | Description
 --------- | ---- | -----------
 options | Object | Holds the options properties that help you configure the behavior of this module.
-options.configPath | String | The folder path to your yaml config files.
+options.bootstrapPath | String | Optional - The folder path to your bootstrap config file. If not provided, then options.configPath location must contain both bootstrap.yml and application.yml.
+options.configPath | String | The folder path to your yaml config file(s).
 options.activeProfiles | String[] | Profile names to filter your local yaml documents, as well as your remote property sources, by.
 options.level | String | Logging level to use.
 
@@ -102,7 +103,7 @@ Option | Type | Description
 ------ | -------- | -----------
 spring.cloud.config.enabled | boolean | Enable/disable the usage of remote properties via a Spring Cloud Config Server.
 Properties Inherited from [cloud-config-client](https://www.npmjs.com/package/cloud-config-client) | | 
-name | String | The application name to be used for reading remote properties.
+name | String | Optional - The application name to be used for reading remote properties. Alternatively, if not provided here, this must be specified in your application.yml.
 endpoint | String | The url endpoint of the Spring Cloud Config Server.
 label | String | The cloud config label to use.
 rejectUnauthorized | boolean | default = true: if false accepts self-signed certificates
@@ -113,4 +114,5 @@ auth.pass | string | mandatory password if using auth
 ## `application.yml` Application Config Properties
 Option | Type | Description
 ------ | -------- | -----------
+name | String | Optional - You can override/specify your application name here, or in bootstrap.yml. This is an option so that you can share bootstrap.yml with other applications, but use your own application name.
 any.property.you.need | ? | This is your playground where you define whatever properties your application needs to function.
