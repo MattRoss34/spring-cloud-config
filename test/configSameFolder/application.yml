@@ -1,0 +1,11 @@
+#Default config properties
+testUrl: http://www.default.com
+featureFlags:
+  feature1: false
+  feature2: false
+
+---
+# Development config properties
+profiles: dev1,dev2
+
+testUrl: http://www.dev.com
