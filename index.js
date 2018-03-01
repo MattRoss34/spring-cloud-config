@@ -21,9 +21,9 @@ var instance; // The initialized config instance
 function readConfig(options) {
 	return new Promise(function (resolve, reject) {
 		var propertiesObjects = [];
-		//Load Common bootstrap.yml based on the aws profile name (devEast, devWest, etc.)
-		//readBootstrapConfig(options.configPath, options.activeProfiles).then(
-		readYamlAsDocument(options.configPath + '/bootstrap.yml', options.activeProfiles).then((thisBootstrapConfig) => {
+		// Load bootstrap.yml based on the profile name (like devEast or stagingEast)
+		let theBootstrapPath = options.bootstrapPath ? options.bootstrapPath : options.configPath;
+		readYamlAsDocument(theBootstrapPath + '/bootstrap.yml', options.activeProfiles).then((thisBootstrapConfig) => {
 			thisBootstrapConfig.profiles = options.activeProfiles;
 			logger.debug("Using Bootstrap Config: " + JSON.stringify(thisBootstrapConfig));
 			bootstrapConfig = thisBootstrapConfig
@@ -33,11 +33,13 @@ function readConfig(options) {
 		}).then((applicationConfig) => {
 			logger.debug("Using Application Config: " + JSON.stringify(applicationConfig));
 			propertiesObjects.push(applicationConfig);
-
+			if (applicationConfig.name)
+				bootstrapConfig.name = applicationConfig.name;
+			
 			return readCloudConfig(bootstrapConfig);
 		}).then((cloudConfig) => {
 			propertiesObjects.push(cloudConfig);
-			// Merge the properties into a single object (with keys like 'spring.application.name')
+			// Merge the properties into a single object
 			instance = mergeProperties(propertiesObjects);
 
 			logger.debug('Using Config: ' + JSON.stringify(instance));
@@ -211,6 +213,7 @@ function createObjectForProperty(propertyKeys, propertyValue) {
  * @param {Object} options The options to use for initialization.
  */
 module.exports.load = function(options) {
+	// options.bootstrapPath is optional
 	if (!(options.configPath && options.activeProfiles))
 		return Promise.reject("Invalid options supplied. Please consult the documentation.");
 	
