@@ -250,7 +250,7 @@ describe('spring-cloud-config-client', function() {
 			this.sandbox.restore();
 		});
 
-		it('should fail without config path', function() {
+		it('should fail without app config path', function() {
 			let options = {
 				activeProfiles: []
 			}
@@ -272,8 +272,23 @@ describe('spring-cloud-config-client', function() {
 			});
 		});
 
-		it('should fail with invalid path', function() {
+		it('should fail with invalid bootstrap path', function() {
 			let options = {
+				bootstrapPath: './badPath/commonConfig',
+				configPath: './test/config',
+				activeProfiles: [],
+				level: 'debug'
+			}
+			return springCloudConfig.load(options).then((config) => {
+				assert.fail('did not fail', 'a failure', 'this attempt should fail');
+			}, (error) => {
+				assert.isOk('Success', 'Load failed as expected.');
+			});
+		});
+
+		it('should fail with invalid app config path', function() {
+			let options = {
+				bootstrapPath: './test/commonConfig',
 				configPath: './badPath/config',
 				activeProfiles: [],
 				level: 'debug'
@@ -285,11 +300,31 @@ describe('spring-cloud-config-client', function() {
 			});
 		});
 
+		it('should succeed with no bootstrap path and same config folder', function() {
+			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
+				Promise.resolve({forEach(callback, aBoolValue) {}})
+			);
+			let options = {
+				configPath: './test/configSameFolder',
+				activeProfiles: [],
+				level: 'debug'
+			}
+			return springCloudConfig.load(options).then((config) => {
+				assert.deepEqual(config.name, 'the-application-name');
+				assert.deepEqual(config.testUrl, 'http://www.default.com');
+				assert.deepEqual(config.endpoint, 'http://localhost:8888');
+				assert.deepEqual(config.label, 'master');
+			}, (error) => {
+				assert.fail("Error", "Success", JSON.stringify(error.message));
+			});
+		});
+
 		it('should load default configs with no profile', function() {
 			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
 			let options = {
+				bootstrapPath: './test/commonConfig',
 				configPath: './test/config',
 				activeProfiles: [],
 				level: 'debug'
@@ -298,6 +333,26 @@ describe('spring-cloud-config-client', function() {
 				assert.deepEqual(config.name, 'the-application-name');
 				assert.deepEqual(config.testUrl, 'http://www.default.com');
 				assert.deepEqual(config.endpoint, 'http://localhost:8888');
+				assert.deepEqual(config.label, 'master');
+			}, (error) => {
+				assert.fail("Error", "Success", JSON.stringify(error.message));
+			});
+		});
+
+		it('should load default configs with app name override', function() {
+			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
+				Promise.resolve({forEach(callback, aBoolValue) {}})
+			);
+			let options = {
+				bootstrapPath: './test/commonConfig',
+				configPath: './test/appNameConfig',
+				activeProfiles: [],
+				level: 'debug'
+			}
+			return springCloudConfig.load(options).then((config) => {
+				assert.deepEqual(config.name, 'custom-app-name');
+				assert.deepEqual(config.endpoint, 'http://localhost:8888');
+				assert.deepEqual(config.label, 'master');
 			}, (error) => {
 				assert.fail("Error", "Success", JSON.stringify(error.message));
 			});
@@ -308,6 +363,7 @@ describe('spring-cloud-config-client', function() {
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
 			let options = {
+				bootstrapPath: './test/commonConfig',
 				configPath: './test/config',
 				activeProfiles: ['dev2'],
 				level: 'debug'
@@ -316,6 +372,7 @@ describe('spring-cloud-config-client', function() {
 				assert.deepEqual(config.name, 'the-application-name');
 				assert.deepEqual(config.testUrl, 'http://www.dev.com');
 				assert.deepEqual(config.endpoint, 'http://dev-config-server:8888');
+				assert.deepEqual(config.label, 'master');
 			}, (error) => {
 				assert.fail("Error", "Success", JSON.stringify(error.message));
 			});
@@ -332,6 +389,7 @@ describe('spring-cloud-config-client', function() {
 				})
 			);
 			let options = {
+				bootstrapPath: './test/commonConfig',
 				configPath: './test/config',
 				activeProfiles: ['default'],
 				level: 'debug'
@@ -340,6 +398,7 @@ describe('spring-cloud-config-client', function() {
 				assert.deepEqual(config.name, 'the-application-name');
 				assert.deepEqual(config.testUrl, 'http://www.default-local.com');
 				assert.deepEqual(config.endpoint, 'http://localhost:8888');
+				assert.deepEqual(config.label, 'master');
 				assert.deepEqual(config.featureFlags.feature1, false);
 				assert.deepEqual(config.featureFlags.feature2, false);
 			}, (error) => {
@@ -358,6 +417,7 @@ describe('spring-cloud-config-client', function() {
 				})
 			);
 			let options = {
+				bootstrapPath: './test/commonConfig',
 				configPath: './test/config',
 				activeProfiles: ['dev1'],
 				level: 'debug'
@@ -366,6 +426,7 @@ describe('spring-cloud-config-client', function() {
 				assert.deepEqual(config.name, 'the-application-name');
 				assert.deepEqual(config.testUrl, 'http://www.dev-cloud.com');
 				assert.deepEqual(config.endpoint, 'http://dev-config-server:8888');
+				assert.deepEqual(config.label, 'master');
 				assert.deepEqual(config.featureFlags.feature1, true);
 				assert.deepEqual(config.featureFlags.feature2, false);
 			}, (error) => {
@@ -389,6 +450,7 @@ describe('spring-cloud-config-client', function() {
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
 			let options = {
+				bootstrapPath: './test/commonConfig',
 				configPath: './test/config',
 				activeProfiles: [],
 				level: 'debug'
