@@ -7,7 +7,7 @@ describe('spring-cloud-config-client', function() {
 
 	describe("#readYaml()", function () {
 		it("should read test yaml without profiles", function () {
-			return springCloudConfig.readYaml('./test/fixtures/test.yml')
+			return springCloudConfig.readYaml('./test/fixtures/readYaml/test.yml')
 			.then((testProperties) => {
 				assert.deepEqual(testProperties['test.unit.testBool'], true);
 				assert.deepEqual(testProperties['test.unit.testString'], 'testing');
@@ -18,7 +18,7 @@ describe('spring-cloud-config-client', function() {
 		});
 
 		it("should read yaml and parse doc by profiles", function () {
-			return springCloudConfig.readYaml('./test/fixtures/test-yaml-docs.yml', ['development'])
+			return springCloudConfig.readYaml('./test/fixtures/readYaml/test-yaml-docs.yml', ['development'])
 			.then((testProperties) => {
 				assert.deepEqual(testProperties['test.unit.testBool'], true);
 				assert.deepEqual(testProperties['test.unit.testString'], 'testing again');
@@ -29,7 +29,7 @@ describe('spring-cloud-config-client', function() {
 		});
 
 		it("should read yaml and parse doc by profiles, even with multiple profiles", function () {
-			return springCloudConfig.readYaml('./test/fixtures/test-yaml-with-profiles.yml', ['env1','env4'])
+			return springCloudConfig.readYaml('./test/fixtures/readYaml/test-yaml-with-profiles.yml', ['env1','env4'])
 			.then((testProperties) => {
 				assert.deepEqual(testProperties['urlProperty'], 'http://www.testdomain-shared.com');
 				assert.deepEqual(testProperties['propertyGroup']['groupProperty'], false);
@@ -214,6 +214,42 @@ describe('spring-cloud-config-client', function() {
 				});
 	});
 
+	describe('#readApplicationConfig()', function() {
+		it('should read application config without profile-specific yaml', function() {
+			let appConfigPath = './test/fixtures/readAppConfig/singleAppYaml';
+			let activeProfiles = ['dev1'];
+			return springCloudConfig.readApplicationConfig(appConfigPath, activeProfiles).then((config) => {
+				assert.deepEqual(config.testUrl, 'http://www.default.com');
+				assert.deepEqual(config.featureFlags.feature1, false);
+				assert.deepEqual(config.featureFlags.feature2, false);
+			}, (error) => {
+				assert.fail('an error', 'success', error.message);
+			});
+		});
+		it('should read application config without profiles', function() {
+			let appConfigPath = './test/fixtures/readAppConfig/multiAppYaml';
+			let activeProfiles = [];
+			return springCloudConfig.readApplicationConfig(appConfigPath, activeProfiles).then((config) => {
+				assert.deepEqual(config.testUrl, 'http://www.default.com');
+				assert.deepEqual(config.featureFlags.feature1, false);
+				assert.deepEqual(config.featureFlags.feature2, false);
+			}, (error) => {
+				assert.fail('an error', 'success', error.message);
+			});
+		});
+		it('should read multi application config with profiles', function() {
+			let appConfigPath = './test/fixtures/readAppConfig/multiAppYaml';
+			let activeProfiles = ['dev2'];
+			return springCloudConfig.readApplicationConfig(appConfigPath, activeProfiles).then((config) => {
+				assert.deepEqual(config.testUrl, 'http://www.dev2.com');
+				assert.deepEqual(config.featureFlags.feature1, true);
+				assert.deepEqual(config.featureFlags.feature2, false);
+			}, (error) => {
+				assert.fail('an error', 'success', error.message);
+			});
+		});
+	});
+
 	describe('#readCloudConfig()', function() {
 		it('should skip cloud config when not enabled', function() {
 			let bootstrapConfig = {
@@ -263,7 +299,7 @@ describe('spring-cloud-config-client', function() {
 
 		it('should fail without activeProfiles', function() {
 			let options = {
-				configPath: './test/config',
+				configPath: './test/fixtures/load/config',
 			}
 			return springCloudConfig.load(options).then((config) => {
 				assert.fail('did not fail', 'a failure', 'this attempt should fail');
@@ -275,7 +311,7 @@ describe('spring-cloud-config-client', function() {
 		it('should fail with invalid bootstrap path', function() {
 			let options = {
 				bootstrapPath: './badPath/commonConfig',
-				configPath: './test/config',
+				configPath: './test/fixtures/load/config',
 				activeProfiles: [],
 				level: 'debug'
 			}
@@ -288,8 +324,8 @@ describe('spring-cloud-config-client', function() {
 
 		it('should fail with invalid app config path', function() {
 			let options = {
-				bootstrapPath: './test/commonConfig',
-				configPath: './badPath/config',
+				bootstrapPath: './test/fixtures/load/commonConfig',
+				configPath: './badPath/fixtures/load/config',
 				activeProfiles: [],
 				level: 'debug'
 			}
@@ -305,7 +341,7 @@ describe('spring-cloud-config-client', function() {
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
 			let options = {
-				configPath: './test/configSameFolder',
+				configPath: './test/fixtures/load/configSameFolder',
 				activeProfiles: [],
 				level: 'debug'
 			}
@@ -324,8 +360,8 @@ describe('spring-cloud-config-client', function() {
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
 			let options = {
-				bootstrapPath: './test/commonConfig',
-				configPath: './test/config',
+				bootstrapPath: './test/fixtures/load/commonConfig',
+				configPath: './test/fixtures/load/config',
 				activeProfiles: [],
 				level: 'debug'
 			}
@@ -344,8 +380,8 @@ describe('spring-cloud-config-client', function() {
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
 			let options = {
-				bootstrapPath: './test/commonConfig',
-				configPath: './test/appNameConfig',
+				bootstrapPath: './test/fixtures/load/commonConfig',
+				configPath: './test/fixtures/load/appNameConfig',
 				activeProfiles: [],
 				level: 'debug'
 			}
@@ -363,8 +399,8 @@ describe('spring-cloud-config-client', function() {
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
 			let options = {
-				bootstrapPath: './test/commonConfig',
-				configPath: './test/config',
+				bootstrapPath: './test/fixtures/load/commonConfig',
+				configPath: './test/fixtures/load/config',
 				activeProfiles: ['dev2'],
 				level: 'debug'
 			}
@@ -389,8 +425,8 @@ describe('spring-cloud-config-client', function() {
 				})
 			);
 			let options = {
-				bootstrapPath: './test/commonConfig',
-				configPath: './test/config',
+				bootstrapPath: './test/fixtures/load/commonConfig',
+				configPath: './test/fixtures/load/config',
 				activeProfiles: ['default'],
 				level: 'debug'
 			}
@@ -417,8 +453,8 @@ describe('spring-cloud-config-client', function() {
 				})
 			);
 			let options = {
-				bootstrapPath: './test/commonConfig',
-				configPath: './test/config',
+				bootstrapPath: './test/fixtures/load/commonConfig',
+				configPath: './test/fixtures/load/config',
 				activeProfiles: ['dev1'],
 				level: 'debug'
 			}
@@ -450,8 +486,8 @@ describe('spring-cloud-config-client', function() {
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
 			let options = {
-				bootstrapPath: './test/commonConfig',
-				configPath: './test/config',
+				bootstrapPath: './test/fixtures/load/commonConfig',
+				configPath: './test/fixtures/load/config',
 				activeProfiles: [],
 				level: 'debug'
 			}
