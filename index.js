@@ -29,7 +29,7 @@ function readConfig(options) {
 			bootstrapConfig = thisBootstrapConfig
 			propertiesObjects.push(thisBootstrapConfig);
 			
-			return readYamlAsDocument(options.configPath + '/application.yml', options.activeProfiles);
+			return readApplicationConfig(options.configPath, options.activeProfiles);
 		}).then((applicationConfig) => {
 			logger.debug("Using Application Config: " + JSON.stringify(applicationConfig));
 			propertiesObjects.push(applicationConfig);
@@ -49,6 +49,37 @@ function readConfig(options) {
 			reject(error);
 		});
 	});
+}
+
+/**
+ * Read the application's configuration files and merge them into a single object.
+ * 
+ * @param {String} appConfigPath Path to where the application yaml files can be found.
+ * @param {String[]} activeProfiles The active profiles to use for filtering config files.
+ */
+function readApplicationConfig(appConfigPath, activeProfiles) {
+	return readYamlAsDocument(appConfigPath + '/application.yml', activeProfiles).then(
+		(applicationConfig) => {
+			var appConfigs = [ applicationConfig ];
+			activeProfiles.forEach(function(activeProfile) {
+				var profileSpecificYaml = 'application-' + activeProfile + '.yml';
+				var profileSpecificYamlPath = appConfigPath + '/' + profileSpecificYaml;
+				if (fs.existsSync(profileSpecificYamlPath)) {
+					try {
+						var propDoc = yaml.safeLoad(fs.readFileSync(profileSpecificYamlPath, 'utf8'));
+						var thisDoc = parsePropertiesToObjects(propDoc);
+						appConfigs.push(thisDoc);
+					} catch (error) {
+						logger.error('Error reading profile-specific yaml: ' + error.message);
+					}
+				} else {
+					logger.debug('Profile-specific yaml not found: ' + profileSpecificYaml);
+				}
+			});
+			let mergedAppConfig = mergeProperties(appConfigs);
+			return Promise.resolve(mergedAppConfig);
+		}
+	);
 }
 
 /**
@@ -89,13 +120,17 @@ function readCloudConfig(bootStrapConfig) {
 /**
  * Reads the yaml document and parses any dot-separated property keys into objects.
  * 
- * @param {string} relativePath Relative path of the file to read.
- * @param {Array} activeProfiles Profiles to filter the yaml documents on.
+ * @param {String} relativePath Relative path of the file to read.
+ * @param {String[]} activeProfiles Profiles to filter the yaml documents on.
  */
 function readYamlAsDocument(relativePath, activeProfiles) {
-	return readYaml(relativePath, activeProfiles).then((yamlDoc) => {
-		return Promise.resolve(parsePropertiesToObjects(yamlDoc));
-	});
+	try {
+		return readYaml(relativePath, activeProfiles).then((yamlDoc) => {
+			return Promise.resolve(parsePropertiesToObjects(yamlDoc));
+		});
+	} catch (error) {
+		return Promise.reject(error);
+	}
 }
 
 /**
@@ -103,8 +138,8 @@ function readYamlAsDocument(relativePath, activeProfiles) {
  * If 'profile' is specified then this method expects to filter the yaml for docs based on doc.profiles.
  * If no profile is specified, then only docs without an 'env' property will be read from the yaml.
  *
- * @param {string} relativePath Relative path of the file to read.
- * @param {Array} activeProfiles Profiles to filter the yaml documents on.
+ * @param {String} relativePath Relative path of the file to read.
+ * @param {String[]} activeProfiles Profiles to filter the yaml documents on.
  * @returns {Promise} Object representation of the given yaml file.
  */
 function readYaml(relativePath, activeProfiles) {
@@ -130,7 +165,7 @@ function readYaml(relativePath, activeProfiles) {
  * given profile. This provides similar functionality to spring profiles.
  *
  * @param {Object} document The yaml doc to check.
- * @param {Array} activeProfiles The current profile names to filter docs by.
+ * @param {String[]} activeProfiles The current profile names to filter docs by.
  * @returns {boolean} True if the given yaml doc applies to the given profiles.
  */
 function shouldUseDocument(document, activeProfiles) {
@@ -191,8 +226,8 @@ function parsePropertiesToObjects(propertiesObject) {
  * Turns an array of key segments and value into a nested object.
  * Example: ['spring','profiles','active'], 'dev' -> { 'spring': 'profiles': 'active': 'dev' }
  *
- * @param {string[]} propertyKeys The key segments for the given property
- * @param propertyValue The value associated with the given property
+ * @param {String[]} propertyKeys The key segments for the given property
+ * @param {*} propertyValue The value associated with the given property
  * @returns {Object}
  */
 function createObjectForProperty(propertyKeys, propertyValue) {
@@ -227,6 +262,7 @@ module.exports.instance = function() {
 };
 
 // To enable unit testing
+module.exports.readApplicationConfig = readApplicationConfig
 module.exports.readCloudConfig = readCloudConfig;
 module.exports.readYaml = readYaml;
 module.exports.shouldUseDocument = shouldUseDocument;
