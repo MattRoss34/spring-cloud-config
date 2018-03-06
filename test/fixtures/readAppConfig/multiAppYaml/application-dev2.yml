@@ -1,0 +1,3 @@
+testUrl: http://www.dev2.com
+featureFlags:
+  feature1: true
