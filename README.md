@@ -12,7 +12,7 @@ Feature requests are welcome.
 
 ## Introduction
 
-You get to define your application properties the same way you do in your Spring Boot applications. Use a `bootstrap.yml` file to specify your config server settings and `application.yml` to hold your local application properties. This module even supports profiling, similar to Spring Boot profiles.
+You get to define your application properties the same way you do in your Spring Boot applications. Use a `bootstrap.yml` file to specify your config server settings and `application.yml` to hold your local application properties. This module even supports profiling, similar to Spring Boot profiles, giving you the option to define profile-based properties in either separate files (like `application-{profile}.yml`) or in a single multi-document yaml file using a `profiles: profile1,profile2` property format on the applicable documents.
 
 ## Getting Started
 
@@ -63,11 +63,24 @@ let myMongoUrl = myConfig.db.mongo.url;
 
 ### The Yaml Files
 
-This module requires that you supply a folder path where it can expect to find two files: `bootstrap.yml` and `application.yml`. The bootstrap yaml is used to configure your cloud config server properties, similar to Spring Cloud Config. The application yaml should be used for defining your application's configuration properties. Optionally, you can specify your application's name here, using the `name` property. This gives you the option of using a shared bootstrap.yml (i.e. shared with other apps) but still specify your individual application's name.
+As mentioned above, this module uses Yaml files to configure your application properties. You need to supply folder paths where it can expect to find two sets of files: `bootstrap.yml` and `application.yml`. The bootstrap yaml is used to configure your cloud config server properties, similar to Spring Cloud Config. The application yaml should be used for defining your application's configuration properties. Optionally, you can specify your application's name in application.yml instead of in bootstrap.yml, using the `name` property. Doing so gives you the option of using a shared bootstrap.yml (i.e. shared with other apps) but still be able to specify your individual application's name.
 
-### Support for Profiles
+### Support for Profiles in Multi-Document Yaml
 
-As with any Yaml implementation, you can include multiple documents in each Yaml file using `---` as a separator. Additionally, this module allows you to define documents that apply to specific 'profiles', same as the 'spring.profiles' concept. If you include a `profiles` property in a given yaml document, those properties will only be included in your merged configuration result if any of the given profiles are found in the `options.activeProfiles` array.  
+As with any Yaml implementation, you can include multiple documents in each Yaml file using `---` as a separator. Additionally, this module allows you to define documents that apply to specific 'profiles', same as the 'spring.profiles' concept. If you include a `profiles:` property in a given yaml document, the properties in that document will only be included in your merged configuration result if any of the `configOptions.activeProfiles` match up with the specified profiles.
+
+#### Example application.yml
+```yaml
+name: my-application-name
+db:
+    mongo:
+        url: http://localhost:27017
+---
+profiles: dev1,dev2,!local
+db:
+    mongo:
+        url: http://dev-mongo-server:27017
+```
 
 #### Applying Yaml Docs to Multiple Profiles
 
@@ -76,6 +89,19 @@ You can apply the properties of a Yaml doc to multiple application profiles. Jus
 #### Excluding Yaml Docs from Profiles
 
 This module supports the `Not` operator (!) on profiles to provide for excluding configuration properties from specific profiles. Just prepend a '!' to the profile name you want to exclude the given yaml doc from, like `profiles: dev1,!dev2`.
+
+### Support for Profile-Specific File Names
+
+If your application supports a wide range of profiles and/or properties then you might consider using profile-specific file names for your application.yml. Wherever you keep your application.yml, just add more yaml files named with this pattern: `application-{profile}.yml`.
+
+#### Examples
+```text
+application.yml
+application-local.yml
+application-dev.yml
+application-dev2.yml
+application-prod.yml
+```
 
 ### Remote Property Sources
 
