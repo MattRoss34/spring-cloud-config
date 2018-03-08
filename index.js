@@ -26,8 +26,7 @@ function readConfig(options) {
 		readYamlAsDocument(theBootstrapPath + '/bootstrap.yml', options.activeProfiles).then((thisBootstrapConfig) => {
 			thisBootstrapConfig.profiles = options.activeProfiles;
 			logger.debug("Using Bootstrap Config: " + JSON.stringify(thisBootstrapConfig));
-			bootstrapConfig = thisBootstrapConfig
-			propertiesObjects.push(thisBootstrapConfig);
+			bootstrapConfig = thisBootstrapConfig;
 			
 			return readApplicationConfig(options.configPath, options.activeProfiles);
 		}).then((applicationConfig) => {
@@ -39,6 +38,8 @@ function readConfig(options) {
 			return readCloudConfig(bootstrapConfig);
 		}).then((cloudConfig) => {
 			propertiesObjects.push(cloudConfig);
+			// Bootstrap properties have the highest priority
+			propertiesObjects.push(bootstrapConfig);
 			// Merge the properties into a single object
 			instance = mergeProperties(propertiesObjects);
 
