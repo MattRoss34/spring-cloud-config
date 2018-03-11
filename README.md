@@ -12,7 +12,7 @@ Feature requests are welcome.
 
 ## Introduction
 
-You get to define your application properties the same way you do in your Spring Boot applications. Use a `bootstrap.yml` file to specify your config server settings and `application.yml` to hold your local application properties. This module even supports profiling, similar to Spring Boot profiles, giving you the option to define profile-based properties in either separate files (like `application-{profile}.yml`) or in a single multi-document yaml file using a `profiles: profile1,profile2` property format on the applicable documents.
+You get to define your application properties the same way you do in your Spring Boot applications. Use a `bootstrap.yml` file to specify your config server settings and `application.yml` to hold your local application properties. This module even supports profiling, similar to Spring Boot profiles, giving you the option to define profile-based properties in either separate files, like `application-{profile}.yml`, or in a single multi-document yaml file using a `profiles` property on the applicable documents, like `profiles: profile1,profile2`.
 
 ## Getting Started
 
@@ -21,29 +21,32 @@ Install the package
 npm install spring-cloud-config
 ```
 
-Define an application.yml in the location of your choice.
+Define an application.yml, or a group of application.yml and application-{profile}.yml files, in the location of your choice.
 #### application.yml
 ```yaml
-name: my-application-name
+spring.cloud.config.name: my-application-name
 db:
-    mongo:
-        url: http://localhost:27017
+   mongo:
+      url: http://localhost:27017
 ---
 profiles: dev1,dev2
 db:
-    mongo:
-        url: http://dev-mongo-server:27017
+   mongo:
+      url: http://dev-mongo-server:27017
 ```
 
 Define a bootstrap.yml in the location of your choice.
 #### bootstrap.yml
 ```yaml
-spring.cloud.config.enabled: true
-endpoint: http://localhost:8888
-label: master
+spring:
+   cloud:
+      config:
+         enabled: true
+         endpoint: http://localhost:8888
+         label: master
 ---
 profiles: dev1,dev2
-endpoint: http://dev-config-server:8888
+spring.cloud.config.endpoint: http://dev-config-server:8888
 ```
 
 Consume the module in your script.
@@ -63,23 +66,23 @@ let myMongoUrl = myConfig.db.mongo.url;
 
 ### The Yaml Files
 
-As mentioned above, this module uses Yaml files to configure your application properties. You need to supply folder paths where it can expect to find two sets of files: `bootstrap.yml` and `application.yml`. The bootstrap yaml is used to configure your cloud config server properties, similar to Spring Cloud Config. The application yaml should be used for defining your application's configuration properties. Optionally, you can specify your application's name in application.yml instead of in bootstrap.yml, using the `name` property. Doing so gives you the option of using a shared bootstrap.yml (i.e. shared with other apps) but still be able to specify your individual application's name.
+As mentioned above, this module uses Yaml files to configure your application properties. You need to supply folder paths where it can expect to find two sets of files: `bootstrap.yml` and `application.yml`. The bootstrap yaml is used to configure your cloud config server properties, similar to Spring Cloud Config. The application yaml should be used for defining your application's configuration properties. Optionally, you can specify your application's name in application.yml instead of in bootstrap.yml, using the `spring.cloud.config.name` property. Doing so gives you the option of using a shared bootstrap.yml (i.e. shared with other apps) but still be able to specify your individual application's name.
 
 ### Support for Profiles in Multi-Document Yaml
 
-As with any Yaml implementation, you can include multiple documents in each Yaml file using `---` as a separator. Additionally, this module allows you to define documents that apply to specific 'profiles', same as the 'spring.profiles' concept. If you include a `profiles:` property in a given yaml document, the properties in that document will only be included in your merged configuration result if any of the `configOptions.activeProfiles` match up with the specified profiles.
+As with any Yaml implementation, you can include multiple documents in each Yaml file using `---` as a separator. Additionally, this module allows you to define documents that apply to specific 'profiles', same as the 'spring.profiles' concept. If you include a `profiles` property in a given yaml document, the properties in that document will only be included in your merged configuration result if any of the `configOptions.activeProfiles` match up with the specified profiles.
 
 #### Example application.yml
 ```yaml
-name: my-application-name
+spring.cloud.config.name: my-application-name
 db:
-    mongo:
-        url: http://localhost:27017
+   mongo:
+      url: http://localhost:27017
 ---
 profiles: dev1,dev2,!local
 db:
-    mongo:
-        url: http://dev-mongo-server:27017
+   mongo:
+      url: http://dev-mongo-server:27017
 ```
 
 #### Applying Yaml Docs to Multiple Profiles
@@ -88,7 +91,7 @@ You can apply the properties of a Yaml doc to multiple application profiles. Jus
 
 #### Excluding Yaml Docs from Profiles
 
-This module supports the `Not` operator (!) on profiles to provide for excluding configuration properties from specific profiles. Just prepend a '!' to the profile name you want to exclude the given yaml doc from, like `profiles: dev1,!dev2`.
+This module supports the `Not` operator (!) on profiles to provide for excluding configuration properties from specific profiles. Just prepend an '!' to the profile name you want to exclude the given yaml doc from, like `profiles: dev1,!dev2`.
 
 ### Support for Profile-Specific File Names
 
@@ -127,18 +130,19 @@ Returns the current configuration properties object. Use the `load` function pri
 ### `bootstrap.yml` Cloud Config Options
 Option | Type | Description
 ------ | -------- | -----------
+spring.cloud.config | Object | The config options to use for fetching remote properties from a Spring Cloud Config Server.
 spring.cloud.config.enabled | boolean | Enable/disable the usage of remote properties via a Spring Cloud Config Server.
 Properties Inherited from [cloud-config-client](https://www.npmjs.com/package/cloud-config-client) | | 
-name | String | Optional - The application name to be used for reading remote properties. Alternatively, if not provided here, this must be specified in your application.yml.
-endpoint | String | The url endpoint of the Spring Cloud Config Server.
-label | String | The cloud config label to use.
-rejectUnauthorized | boolean | default = true: if false accepts self-signed certificates
-auth | Object | optional: Basic Authentication for config server (e.g.: { user: "username", pass: "password"}). endpoint accepts also basic auth (e.g. http://user:pass@localhost:8888).
-auth.user | string | mandatory username if using auth
-auth.pass | string | mandatory password if using auth
+spring.cloud.config.name | String | Optional - The application name to be used for reading remote properties. Alternatively, if not provided here, this must be specified in your application.yml.
+spring.cloud.config.endpoint | String | The url endpoint of the Spring Cloud Config Server.
+spring.cloud.config.label | String | The cloud config label to use.
+spring.cloud.config.rejectUnauthorized | boolean | default = true: if false accepts self-signed certificates
+spring.cloud.config.auth | Object | optional: Basic Authentication for config server (e.g.: { user: "username", pass: "password"}). endpoint accepts also basic auth (e.g. http://user:pass@localhost:8888).
+spring.cloud.config.auth.user | string | mandatory username if using auth
+spring.cloud.config.auth.pass | string | mandatory password if using auth
 
-## `application.yml` Application Config Properties
+### `application.yml` Application Config Properties
 Option | Type | Description
 ------ | -------- | -----------
-name | String | Optional - You can override/specify your application name here, or in bootstrap.yml. This is an option so that you can share bootstrap.yml with other applications, but use your own application name.
+spring.cloud.config.name | String | Optional - You can override/specify your application name here, or in bootstrap.yml. This is an option so that you can share bootstrap.yml with other applications but still use your own application name.
 any.property.you.need | ? | This is your playground where you define whatever properties your application needs to function.
