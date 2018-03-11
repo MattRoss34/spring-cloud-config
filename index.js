@@ -24,7 +24,7 @@ function readConfig(options) {
 		// Load bootstrap.yml based on the profile name (like devEast or stagingEast)
 		let theBootstrapPath = options.bootstrapPath ? options.bootstrapPath : options.configPath;
 		readYamlAsDocument(theBootstrapPath + '/bootstrap.yml', options.activeProfiles).then((thisBootstrapConfig) => {
-			thisBootstrapConfig.profiles = options.activeProfiles;
+			thisBootstrapConfig.spring.cloud.config.profiles = options.activeProfiles;
 			logger.debug("Using Bootstrap Config: " + JSON.stringify(thisBootstrapConfig));
 			bootstrapConfig = thisBootstrapConfig;
 			
@@ -32,8 +32,11 @@ function readConfig(options) {
 		}).then((applicationConfig) => {
 			logger.debug("Using Application Config: " + JSON.stringify(applicationConfig));
 			propertiesObjects.push(applicationConfig);
-			if (applicationConfig.name)
-				bootstrapConfig.name = applicationConfig.name;
+			if (applicationConfig.spring 
+					&& applicationConfig.spring.cloud 
+					&& applicationConfig.spring.cloud.config 
+					&& applicationConfig.spring.cloud.config.name)
+				bootstrapConfig.spring.cloud.config.name = applicationConfig.spring.cloud.config.name;
 			
 			return readCloudConfig(bootstrapConfig);
 		}).then((cloudConfig) => {
@@ -94,8 +97,8 @@ function readCloudConfig(bootStrapConfig) {
 		var cloudConfig = {};
 		if (bootStrapConfig.spring.cloud.config.enabled) {
 			try {
-				logger.debug("Cloud Options: " + JSON.stringify(bootStrapConfig));
-				cloudConfigClient.load(bootStrapConfig).then((cloudConfigProperties) => {
+				logger.debug("Spring Cloud Options: " + JSON.stringify(bootStrapConfig.spring.cloud.config));
+				cloudConfigClient.load(bootStrapConfig.spring.cloud.config).then((cloudConfigProperties) => {
 					if (cloudConfigProperties) {
 						cloudConfigProperties.forEach(function(key, value) {
 							cloudConfig[key] = value;

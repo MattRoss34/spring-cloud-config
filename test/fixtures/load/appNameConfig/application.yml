@@ -1,1 +1,1 @@
-name: 'custom-app-name'
+spring.cloud.config.name: 'custom-app-name'
