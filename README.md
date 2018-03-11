@@ -137,7 +137,7 @@ auth | Object | optional: Basic Authentication for config server (e.g.: { user: 
 auth.user | string | mandatory username if using auth
 auth.pass | string | mandatory password if using auth
 
-## `application.yml` Application Config Properties
+### `application.yml` Application Config Properties
 Option | Type | Description
 ------ | -------- | -----------
 name | String | Optional - You can override/specify your application name here, or in bootstrap.yml. This is an option so that you can share bootstrap.yml with other applications, but use your own application name.
