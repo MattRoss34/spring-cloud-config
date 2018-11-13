@@ -4,7 +4,7 @@
   "description": "NodeJS application configuration using similar style to Spring Config and using the Spring Cloud Config Server for remote property sources.",
   "main": "index.js",
   "dependencies": {
-    "cloud-config-client": "^0.3.1",
+    "cloud-config-client": "^1.0.0",
     "extend": "^3.0.1",
     "js-yaml": "^3.8.2",
     "sinon": "^4.4.2",
