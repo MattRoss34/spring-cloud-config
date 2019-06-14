@@ -22,3 +22,6 @@ out/
 
 # Visual Studio Code
 .vscode
+
+# Coverage
+.nyc_output
