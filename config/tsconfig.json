@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "lib": ["dom", "es2017", "esnext.asynciterable"],
+        "module": "commonjs",
+        "sourceMap": true,
+        "downlevelIteration": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "allowSyntheticDefaultImports": true,
+        "strictNullChecks": true,
+        "baseUrl": "."
+    },
+    "exclude": ["node_modules"]
+}
