@@ -1,5 +1,5 @@
-const assert = require('chai').assert;
-const logger = require('../../logger');
+import { assert } from 'chai';
+import logger from '../../src/logger';
 
 describe('logger', function() {
 

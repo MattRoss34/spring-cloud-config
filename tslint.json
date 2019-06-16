@@ -23,7 +23,7 @@
         "no-empty": true,
         "no-eval": true,
         "no-implicit-dependencies": {
-            "options": [true, ["aws-lambda", "@soluto-api/serverless-yml-builder"]],
+            "options": true,
             "severity": "error"
         },
         "no-shadowed-variable": true,
