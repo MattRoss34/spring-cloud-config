@@ -1,15 +1,15 @@
 import { assert } from 'chai';
 import * as sinon from 'sinon';
-import springCloudConfig from '../../index';
+import * as SpringCloudConfig from '../../src/index';
 import * as cloudConfigClient from "cloud-config-client";
 
-describe('spring-cloud-config-client', function() {
+describe('SpringCloudConfig', function() {
 
 	describe('#readApplicationConfig()', function() {
 		it('should read application config without profile-specific yaml', function() {
 			let appConfigPath = './test/fixtures/readAppConfig/singleAppYaml';
 			let activeProfiles = ['dev1'];
-			return springCloudConfig.readApplicationConfig(appConfigPath, activeProfiles).then((config) => {
+			return SpringCloudConfig.readApplicationConfig(appConfigPath, activeProfiles).then((config) => {
 				assert.deepEqual(config.testUrl, 'http://www.default.com');
 				assert.deepEqual(config.featureFlags.feature1, false);
 				assert.deepEqual(config.featureFlags.feature2, false);
@@ -20,7 +20,7 @@ describe('spring-cloud-config-client', function() {
 		it('should read application config without profiles', function() {
 			let appConfigPath = './test/fixtures/readAppConfig/multiAppYaml';
 			let activeProfiles = [];
-			return springCloudConfig.readApplicationConfig(appConfigPath, activeProfiles).then((config) => {
+			return SpringCloudConfig.readApplicationConfig(appConfigPath, activeProfiles).then((config) => {
 				assert.deepEqual(config.testUrl, 'http://www.default.com');
 				assert.deepEqual(config.featureFlags.feature1, false);
 				assert.deepEqual(config.featureFlags.feature2, false);
@@ -31,7 +31,7 @@ describe('spring-cloud-config-client', function() {
 		it('should read multi application config with profiles', function() {
 			let appConfigPath = './test/fixtures/readAppConfig/multiAppYaml';
 			let activeProfiles = ['dev2'];
-			return springCloudConfig.readApplicationConfig(appConfigPath, activeProfiles).then((config) => {
+			return SpringCloudConfig.readApplicationConfig(appConfigPath, activeProfiles).then((config) => {
 				assert.deepEqual(config.testUrl, 'http://www.dev2.com');
 				assert.deepEqual(config.featureFlags.feature1, true);
 				assert.deepEqual(config.featureFlags.feature2, false);
@@ -46,7 +46,7 @@ describe('spring-cloud-config-client', function() {
 			let bootstrapConfig = {
 				spring: {cloud: {config: {enabled: false}}}
 			};
-			return springCloudConfig.readCloudConfig(bootstrapConfig).then((config) => {
+			return SpringCloudConfig.readCloudConfig(bootstrapConfig).then((config) => {
 				assert.deepEqual(config, {});
 			}, (error) => {
 				assert.fail('an error', 'success', error.message);
@@ -58,10 +58,10 @@ describe('spring-cloud-config-client', function() {
 				spring: {cloud: {config: {
 					enabled: true,
 					name: 'the-application-name',
-					endpoint: 'http://localhost:8888'
+					endpoint: 'http://somenonexistentdomain:8888'
 				}}},
 			};
-			return springCloudConfig.readCloudConfig(bootstrapConfig).then((config) => {
+			return SpringCloudConfig.readCloudConfig(bootstrapConfig).then((config) => {
 				assert.deepEqual(config, {});
 			}, (error) => {
 				assert.fail("Error", "Success", JSON.stringify(error.message));
@@ -83,7 +83,8 @@ describe('spring-cloud-config-client', function() {
 			let options = {
 				activeProfiles: []
 			}
-			return springCloudConfig.load(options).then((config) => {
+			// @ts-ignore
+			return SpringCloudConfig.load(options).then((config) => {
 				assert.fail('did not fail', 'a failure', 'this attempt should fail');
 			}, (error) => {
 				assert.isOk('Success', 'Load failed as expected.');
@@ -94,7 +95,8 @@ describe('spring-cloud-config-client', function() {
 			let options = {
 				configPath: './test/fixtures/load/config',
 			}
-			return springCloudConfig.load(options).then((config) => {
+			// @ts-ignore
+			return SpringCloudConfig.load(options).then((config) => {
 				assert.fail('did not fail', 'a failure', 'this attempt should fail');
 			}, (error) => {
 				assert.isOk('Success', 'Load failed as expected.');
@@ -108,7 +110,7 @@ describe('spring-cloud-config-client', function() {
 				activeProfiles: [],
 				level: 'debug'
 			}
-			return springCloudConfig.load(options).then((config) => {
+			return SpringCloudConfig.load(options).then((config) => {
 				assert.fail('did not fail', 'a failure', 'this attempt should fail');
 			}, (error) => {
 				assert.isOk('Success', 'Load failed as expected.');
@@ -122,7 +124,7 @@ describe('spring-cloud-config-client', function() {
 				activeProfiles: [],
 				level: 'debug'
 			}
-			return springCloudConfig.load(options).then((config) => {
+			return SpringCloudConfig.load(options).then((config) => {
 				assert.fail('did not fail', 'a failure', 'this attempt should fail');
 			}, (error) => {
 				assert.isOk('Success', 'Load failed as expected.');
@@ -138,7 +140,7 @@ describe('spring-cloud-config-client', function() {
 				activeProfiles: [],
 				level: 'debug'
 			}
-			return springCloudConfig.load(options).then((config) => {
+			return SpringCloudConfig.load(options).then((config) => {
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://localhost:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -158,7 +160,7 @@ describe('spring-cloud-config-client', function() {
 				activeProfiles: [],
 				level: 'debug'
 			}
-			return springCloudConfig.load(options).then((config) => {
+			return SpringCloudConfig.load(options).then((config) => {
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://localhost:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -178,7 +180,7 @@ describe('spring-cloud-config-client', function() {
 				activeProfiles: [],
 				level: 'debug'
 			}
-			return springCloudConfig.load(options).then((config) => {
+			return SpringCloudConfig.load(options).then((config) => {
 				assert.deepEqual(config.spring.cloud.config.name, 'custom-app-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://localhost:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -197,7 +199,7 @@ describe('spring-cloud-config-client', function() {
 				activeProfiles: ['dev2'],
 				level: 'debug'
 			}
-			return springCloudConfig.load(options).then((config) => {
+			return SpringCloudConfig.load(options).then((config) => {
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://dev-config-server:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -223,7 +225,7 @@ describe('spring-cloud-config-client', function() {
 				activeProfiles: ['default'],
 				level: 'debug'
 			}
-			return springCloudConfig.load(options).then((config) => {
+			return SpringCloudConfig.load(options).then((config) => {
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://localhost:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -251,7 +253,7 @@ describe('spring-cloud-config-client', function() {
 				activeProfiles: ['dev1'],
 				level: 'debug'
 			}
-			return springCloudConfig.load(options).then((config) => {
+			return SpringCloudConfig.load(options).then((config) => {
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://dev-config-server:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -284,8 +286,8 @@ describe('spring-cloud-config-client', function() {
 				activeProfiles: [],
 				level: 'debug'
 			}
-			return springCloudConfig.load(options).then((config) => {
-				let theConfig = springCloudConfig.instance();
+			return SpringCloudConfig.load(options).then((config) => {
+				let theConfig = SpringCloudConfig.instance();
 				assert.deepEqual(theConfig.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(theConfig.spring.cloud.config.endpoint, 'http://localhost:8888');
 				assert.deepEqual(theConfig.testUrl, 'http://www.default.com');

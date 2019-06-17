@@ -1,8 +1,9 @@
 {
   "name": "spring-cloud-config",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "NodeJS application configuration using similar style to Spring Config and using the Spring Cloud Config Server for remote property sources.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "cloud-config-client": "^1.0.0",
     "extend": "^3.0.2",
@@ -28,15 +29,27 @@
     "typescript": "^3.5.2"
   },
   "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rm -rf dist",
     "test": "nyc mocha  && nyc report --reporter=text-lcov | coveralls",
     "local-test": "nyc mocha",
+    "prepublish": "npm run build",
     "doc": "jsdoc index.js -R README.md -d doc",
     "typecheck": "tsc --noEmit",
     "lint": "tslint --project . --format stylish"
   },
   "nyc": {
     "all": true,
-    "check-coverage": true
+    "check-coverage": true,
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "**/*.js",
+      "**/models.ts",
+      "test"
+    ]
   },
   "author": "Matthew Ross",
   "license": "ISC",

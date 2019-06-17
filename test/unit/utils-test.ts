@@ -7,39 +7,30 @@ import {
 	shouldUseDocument
 } from '../../src/utils';
 
-describe('spring-cloud-config-client', function() {
+describe('utils', function() {
 
 	describe("#readYaml()", function () {
-		it("should read test yaml without profiles", function () {
-			return readYaml('./test/fixtures/readYaml/test.yml')
-			.then((testProperties) => {
-				assert.deepEqual(testProperties['test.unit.testBool'], true);
-				assert.deepEqual(testProperties['test.unit.testString'], 'testing');
-				assert.deepEqual(testProperties['test.unit.testNumber'], 12345);
-			}, (error) => {
-				assert.fail("Error", "Success", JSON.stringify(error.message));
-			});
+		it("should read test yaml without profiles", function (done) {
+			const testProperties = readYaml('./test/fixtures/readYaml/test.yml')
+			assert.deepEqual(testProperties['test.unit.testBool'], true);
+			assert.deepEqual(testProperties['test.unit.testString'], 'testing');
+			assert.deepEqual(testProperties['test.unit.testNumber'], 12345);
+			done();
 		});
 
-		it("should read yaml and parse doc by profiles", function () {
-			return readYaml('./test/fixtures/readYaml/test-yaml-docs.yml', ['development'])
-			.then((testProperties) => {
-				assert.deepEqual(testProperties['test.unit.testBool'], true);
-				assert.deepEqual(testProperties['test.unit.testString'], 'testing again');
-				assert.deepEqual(testProperties['test.unit.testNumber'], 23456);
-			}, (error) => {
-				assert.fail("Error", "Success", JSON.stringify(error.message));
-			});
+		it("should read yaml and parse doc by profiles", function (done) {
+			const testProperties = readYaml('./test/fixtures/readYaml/test-yaml-docs.yml', ['development'])
+			assert.deepEqual(testProperties['test.unit.testBool'], true);
+			assert.deepEqual(testProperties['test.unit.testString'], 'testing again');
+			assert.deepEqual(testProperties['test.unit.testNumber'], 23456);
+			done();
 		});
 
-		it("should read yaml and parse doc by profiles, even with multiple profiles", function () {
-			return readYaml('./test/fixtures/readYaml/test-yaml-with-profiles.yml', ['env1','env4'])
-			.then((testProperties) => {
-				assert.deepEqual(testProperties['urlProperty'], 'http://www.testdomain-shared.com');
-				assert.deepEqual(testProperties['propertyGroup']['groupProperty'], false);
-			}, (error) => {
-				assert.fail("Error", "Success", JSON.stringify(error.message));
-			});
+		it("should read yaml and parse doc by profiles, even with multiple profiles", function (done) {
+			const testProperties = readYaml('./test/fixtures/readYaml/test-yaml-with-profiles.yml', ['env1','env4'])
+			assert.deepEqual(testProperties['urlProperty'], 'http://www.testdomain-shared.com');
+			assert.deepEqual(testProperties['propertyGroup']['groupProperty'], false);
+			done();
 		});
 	});
 
@@ -147,34 +138,39 @@ describe('spring-cloud-config-client', function() {
 
 	describe('#shouldUseDocument()', function() {
 
-		it('should not use undefined document', function() {
+		it('should not use undefined document', function(done) {
 			let doc = undefined;
 			let activeProfiles = ['aProfile'];
+			// @ts-ignore
 			assert.deepEqual(shouldUseDocument(doc, activeProfiles), false);
+			done();
 		});
 
 		it('should not use document that has profiles, but no activeProfiles input',
-				function() {
+				function(done) {
 					let doc = {'profiles': 'aProfile'};
 					let activeProfiles;
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), false);
+					done();
 				});
 
-		it('should use document when doc.profiles is undefined', function() {
+		it('should use document when doc.profiles is undefined', function(done) {
 			let doc = {};
 			let activeProfiles = ['aProfile'];
 			assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
+			done();
 		});
 
 		it('should use document when activeProfiles matches a single doc.profiles',
-				function() {
+				function(done) {
 					let doc = {'profiles': 'devEast'};
 					let activeProfiles = ['devEast'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
+					done();
 				});
 
 		it('should use document when one of activeProfiles matches one of doc.profiles',
-				function() {
+				function(done) {
 					let doc = {'profiles': 'devEast,devWest,stagingEast'};
 					let activeProfiles = ['devEast'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
@@ -182,10 +178,11 @@ describe('spring-cloud-config-client', function() {
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
 					activeProfiles = ['stagingEast'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
+					done();
 				});
 
 		it('should use document when multiple doc.profiles match active profiles',
-				function() {
+				function(done) {
 					let doc = {'profiles': 'devEast,devWest,stagingEast'};
 					let activeProfiles = ['devEast','devWest'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
@@ -193,19 +190,21 @@ describe('spring-cloud-config-client', function() {
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
 					activeProfiles = ['stagingEast','devEast'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
+					done();
 				});
 
 		it('should NOT use document when not operator used in doc.profiles for active profile',
-				function() {
+				function(done) {
 					let doc = {'profiles': 'devEast,!devWest,stagingEast'};
 					let activeProfiles = ['devEast','devWest'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), false);
 					activeProfiles = ['devWest','stagingEast'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), false);
+					done();
 				});
 
 		it('should use document when not operator used in doc.profiles for non-active profile',
-				function() {
+				function(done) {
 					let doc = {'profiles': 'devEast,devWest,!stagingEast'};
 					let activeProfiles = ['devEast','devWest'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
@@ -215,6 +214,7 @@ describe('spring-cloud-config-client', function() {
 					doc = {'profiles': '!devEast,devWest,stagingEast'};
 					activeProfiles = ['devWest','stagingEast'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
+					done();
 				});
 	});
 });

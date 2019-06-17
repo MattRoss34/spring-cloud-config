@@ -1,4 +1,5 @@
-import SpringCloudConfig from './SpringCloudConfig';
+import { SpringCloudConfig as CloudConfig } from './SpringCloudConfig';
 
-export * from './models';
-export default new SpringCloudConfig();
+const SpringCloudConfig = new CloudConfig();
+
+export = SpringCloudConfig;

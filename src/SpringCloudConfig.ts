@@ -6,7 +6,7 @@ import logger from './logger';
 import { ConfigObject, CloudConfigOptions } from './models';
 import { mergeProperties, readYamlAsDocument, parsePropertiesToObjects } from './utils';
 
-export default class SpringCloudConfig {
+export class SpringCloudConfig {
 	private bootstrapConfig: ConfigObject;
 	private config: ConfigObject;
 
