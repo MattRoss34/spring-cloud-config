@@ -5,11 +5,8 @@ export interface CloudConfigOptions {
     level?: string;
 }
 
-export interface CloudConfig {
+export interface Document {
     [name: string]: any
 }
 
-export function load(options: CloudConfigOptions): Promise<CloudConfig>;
-
-export function instance(): CloudConfig;
-
+export interface ConfigObject extends Document {}
