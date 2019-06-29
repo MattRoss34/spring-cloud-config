@@ -5,6 +5,7 @@ import * as cloudConfigClient from 'cloud-config-client';
 import logger from './logger';
 import { ConfigObject, CloudConfigOptions } from './models';
 import { mergeProperties, readYamlAsDocument, parsePropertiesToObjects } from './utils';
+import { CloudConfigOptionsSchema, BootstrapConfigSchema } from './schemas';
 
 let bootstrapConfig: ConfigObject;
 let config: ConfigObject;
@@ -16,7 +17,8 @@ let config: ConfigObject;
  * @returns {ConfigObject} The merged configuration properties from all sources.
  */
 export const load = async (options: CloudConfigOptions): Promise<ConfigObject> => {
-	if (!(options.configPath && options.activeProfiles)) // options.bootstrapPath is optional
+	const { error } = CloudConfigOptionsSchema.validate(options);
+	if (error !== null) // options.bootstrapPath is optional
 		throw new Error("Invalid options supplied. Please consult the documentation.");
 	
 	logger.level = (options.level ? options.level : 'info');
@@ -25,6 +27,9 @@ export const load = async (options: CloudConfigOptions): Promise<ConfigObject> =
 };
 
 export const instance = (): ConfigObject => {
+	if (config === undefined)
+		throw new Error("SpringCloudConfig hasn't been loaded yet.");
+
 	return config;
 };
 
@@ -77,6 +82,12 @@ const readBootstrapConfig = async (options: CloudConfigOptions): Promise<ConfigO
 	const theBootstrapPath: string = options.bootstrapPath ? options.bootstrapPath : options.configPath;
 	const thisBootstrapConfig: ConfigObject = 
 		await readYamlAsDocument(`${theBootstrapPath}/bootstrap.yml`, options.activeProfiles);
+	
+	const { error } = BootstrapConfigSchema.validate(thisBootstrapConfig, { allowUnknown: true });
+	if (error) {
+		throw new Error(error.details[0].message);
+	}
+
 	thisBootstrapConfig.spring.cloud.config.profiles = options.activeProfiles;
 
 	return thisBootstrapConfig;
@@ -129,7 +140,7 @@ export const readCloudConfig = async (bootStrapConfig: ConfigObject): Promise<Co
 			logger.debug("Cloud Config: " + JSON.stringify(cloudConfig));
 			return cloudConfig;
 		} catch (error) {
-			logger.error("Error reading cloud config: %s", error.message);
+			logger.error("Error reading cloud config: ", error);
 			return cloudConfig;
 		};
 	} else {
