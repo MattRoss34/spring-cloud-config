@@ -74,7 +74,7 @@ export const readConfig = async (options: CloudConfigOptions): Promise<ConfigObj
  */
 const readBootstrapConfig = async (options: CloudConfigOptions): Promise<ConfigObject> => {
 	// Load bootstrap.yml based on the profile name (like devEast or stagingEast)
-	let theBootstrapPath: string = options.bootstrapPath ? options.bootstrapPath : options.configPath;
+	const theBootstrapPath: string = options.bootstrapPath ? options.bootstrapPath : options.configPath;
 	const thisBootstrapConfig: ConfigObject = 
 		await readYamlAsDocument(`${theBootstrapPath}/bootstrap.yml`, options.activeProfiles);
 	thisBootstrapConfig.spring.cloud.config.profiles = options.activeProfiles;
@@ -91,7 +91,7 @@ const readBootstrapConfig = async (options: CloudConfigOptions): Promise<ConfigO
  */
 export const readApplicationConfig = async (appConfigPath: string, activeProfiles: string[]): Promise<ConfigObject> => {
 	const applicationConfig: ConfigObject = await readYamlAsDocument(appConfigPath + '/application.yml', activeProfiles);
-	let appConfigs: ConfigObject[] = [ applicationConfig ];
+	const appConfigs: ConfigObject[] = [ applicationConfig ];
 	activeProfiles.forEach(function(activeProfile) {
 		const profileSpecificYaml = 'application-' + activeProfile + '.yml';
 		const profileSpecificYamlPath = appConfigPath + '/' + profileSpecificYaml;
