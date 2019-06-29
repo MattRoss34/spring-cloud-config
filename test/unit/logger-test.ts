@@ -4,6 +4,7 @@ import logger from '../../src/logger';
 describe('logger', function() {
 
 	describe("#config", function () {
+
 		it("should configure logger", function () {
             return new Promise((resolve, reject) => {
                 logger.info("");
@@ -12,6 +13,7 @@ describe('logger', function() {
                 resolve();
             });
         });
+
     });
 
 });
