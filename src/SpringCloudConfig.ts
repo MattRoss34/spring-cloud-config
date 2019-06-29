@@ -138,12 +138,13 @@ export const readCloudConfig = async (bootStrapConfig: ConfigObject): Promise<Co
 				cloudConfig = parsePropertiesToObjects(cloudConfig);
 			}
 			logger.debug("Cloud Config: " + JSON.stringify(cloudConfig));
-			return cloudConfig;
 		} catch (error) {
 			logger.error("Error reading cloud config: ", error);
-			return cloudConfig;
+			if (bootStrapConfig.spring.cloud.config['fail-fast'] === true) {
+				throw error;
+			}
 		};
-	} else {
-		return cloudConfig;
 	}
+	
+	return cloudConfig;
 }

@@ -3,6 +3,7 @@ spring:
    cloud:
       config:
          enabled: true
+         fail-fast: true
          name: the-application-name
          endpoint: http://localhost:8888
          label: master

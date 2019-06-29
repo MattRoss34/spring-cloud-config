@@ -124,7 +124,11 @@ application-prod.yml
 
 ### Remote Property Sources
 
-If you enable the use of spring cloud config (via `spring.cloud.config.enabled: true`), the properties in `application.yml` will be overridden by any of the same properties defined in your remote sources. Keep in mind, however, any error encountered while reaching the remote property sources is currently ignored. Because of this, it is recommended that the properties defined in application.yml be kept up to date and represent the most current state of the application (as much as reasonably possible).
+If you enable the use of spring cloud config via the bootstrap property `spring.cloud.config.enabled: true`, the properties in `application.yml` will be overridden by any of the same properties defined in your remote sources. Keep in mind, however, any error encountered while reaching the remote property sources will be ignored, unless you set the bootstrap property `spring.cloud.config.fail-fast: true`. As a best practice, it is recommended that the properties defined in application.yml be kept up to date and represent the most current state of the application (as much as reasonably possible).
+
+#### Cloud Config Client Fail Fast
+
+If you need configuration loading to throw an error when it can't reach the cloud config server, set the bootstrap property `spring.cloud.config.fail-fast: true`.
 
 ## API
 ### `load` function
@@ -148,6 +152,7 @@ Option | Type | Description
 ------ | -------- | -----------
 spring.cloud.config | Object | The config options to use for fetching remote properties from a Spring Cloud Config Server.
 spring.cloud.config.enabled | boolean | Enable/disable the usage of remote properties via a Spring Cloud Config Server.
+spring.cloud.config.fail-fast | boolean | Enable/disable throwing an error when remote config retrieval fails.
 Properties Inherited from [cloud-config-client](https://www.npmjs.com/package/cloud-config-client) | | 
 spring.cloud.config.name | String | Optional - The application name to be used for reading remote properties. Alternatively, if not provided here, this must be specified in your application.yml.
 spring.cloud.config.endpoint | String | The url endpoint of the Spring Cloud Config Server.
