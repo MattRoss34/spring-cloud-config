@@ -56,6 +56,14 @@ describe('SpringCloudConfig', function() {
 
 	describe('#readCloudConfig()', function() {
 
+		beforeEach(async function() {
+			this.sandbox = sinon.sandbox.create();
+		});
+
+		afterEach(async function() {
+			this.sandbox.restore();
+		});
+
 		it('should skip cloud config when not enabled', async function() {
 			let bootstrapConfig = {
 				spring: {cloud: {config: {enabled: false}}}
@@ -71,6 +79,9 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should skip cloud config if unreachable', async function() {
+			this.sandbox.stub(cloudConfigClient, 'load').returns(
+				Promise.reject(new Error('some error'))
+			);
 			let bootstrapConfig = {
 				spring: {cloud: {config: {
 					enabled: true,
@@ -134,8 +145,7 @@ describe('SpringCloudConfig', function() {
 			let options = {
 				bootstrapPath: './badPath/commonConfig',
 				configPath: './test/fixtures/load/config',
-				activeProfiles: [],
-				level: 'debug'
+				activeProfiles: []
 			}
 
 			try {
