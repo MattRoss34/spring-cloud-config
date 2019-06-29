@@ -2,17 +2,18 @@ import { assert } from 'chai';
 import * as sinon from 'sinon';
 import * as SpringCloudConfig from '../../src';
 import * as cloudConfigClient from "cloud-config-client";
+import { ConfigObject, CloudConfigOptions } from '../../src';
 
 describe('SpringCloudConfig', function() {
 
 	describe('#readApplicationConfig()', function() {
 
 		it('should read application config without profile-specific yaml', async function() {
-			let appConfigPath = './test/fixtures/readAppConfig/singleAppYaml';
-			let activeProfiles = ['dev1'];
+			const appConfigPath: string = './test/fixtures/readAppConfig/singleAppYaml';
+			const activeProfiles: string[] = ['dev1'];
 
 			try {
-				const config = await SpringCloudConfig.readApplicationConfig(appConfigPath, activeProfiles);
+				const config: ConfigObject = await SpringCloudConfig.readApplicationConfig(appConfigPath, activeProfiles);
 				assert.deepEqual(config.testUrl, 'http://www.default.com');
 				assert.deepEqual(config.featureFlags.feature1, false);
 				assert.deepEqual(config.featureFlags.feature2, false);
@@ -23,11 +24,11 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should read application config without profiles', async function() {
-			let appConfigPath = './test/fixtures/readAppConfig/multiAppYaml';
-			let activeProfiles = [];
+			const appConfigPath: string = './test/fixtures/readAppConfig/multiAppYaml';
+			const activeProfiles: string[] = [];
 
 			try {
-				const config = await SpringCloudConfig.readApplicationConfig(appConfigPath, activeProfiles);
+				const config: ConfigObject = await SpringCloudConfig.readApplicationConfig(appConfigPath, activeProfiles);
 				assert.deepEqual(config.testUrl, 'http://www.default.com');
 				assert.deepEqual(config.featureFlags.feature1, false);
 				assert.deepEqual(config.featureFlags.feature2, false);
@@ -38,11 +39,11 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should read multi application config with profiles', async function() {
-			let appConfigPath = './test/fixtures/readAppConfig/multiAppYaml';
-			let activeProfiles = ['dev2'];
+			const appConfigPath: string = './test/fixtures/readAppConfig/multiAppYaml';
+			const activeProfiles: string[] = ['dev2'];
 
 			try {
-				const config = await SpringCloudConfig.readApplicationConfig(appConfigPath, activeProfiles);
+				const config: ConfigObject = await SpringCloudConfig.readApplicationConfig(appConfigPath, activeProfiles);
 				assert.deepEqual(config.testUrl, 'http://www.dev2.com');
 				assert.deepEqual(config.featureFlags.feature1, true);
 				assert.deepEqual(config.featureFlags.feature2, false);
@@ -65,12 +66,12 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should skip cloud config when not enabled', async function() {
-			let bootstrapConfig = {
+			const bootstrapConfig: ConfigObject = {
 				spring: {cloud: {config: {enabled: false}}}
 			};
 
 			try {
-				const config = await SpringCloudConfig.readCloudConfig(bootstrapConfig);
+				const config: ConfigObject = await SpringCloudConfig.readCloudConfig(bootstrapConfig);
 				assert.deepEqual(config, {});
 			}
 			catch (error) {
@@ -82,7 +83,7 @@ describe('SpringCloudConfig', function() {
 			this.sandbox.stub(cloudConfigClient, 'load').returns(
 				Promise.reject(new Error('some error'))
 			);
-			let bootstrapConfig = {
+			const bootstrapConfig: ConfigObject = {
 				spring: {cloud: {config: {
 					enabled: true,
 					name: 'the-application-name',
@@ -91,7 +92,7 @@ describe('SpringCloudConfig', function() {
 			};
 
 			try {
-				const config = await SpringCloudConfig.readCloudConfig(bootstrapConfig);
+				const config: ConfigObject = await SpringCloudConfig.readCloudConfig(bootstrapConfig);
 				assert.deepEqual(config, {});
 			}
 			catch (error) {
@@ -112,13 +113,13 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should fail without app config path', async function() {
-			let options = {
+			// @ts-ignore
+			const options: CloudConfigOptions = {
 				activeProfiles: []
 			}
 
 			try {
-				// @ts-ignore
-				const config = await SpringCloudConfig.load(options);
+				await SpringCloudConfig.load(options);
 				assert.fail('did not fail', 'a failure', 'this attempt should fail');
 			}
 			catch (error) {
@@ -127,13 +128,13 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should fail without activeProfiles', async function() {
-			let options = {
+			// @ts-ignore
+			const options: CloudConfigOptions = {
 				configPath: './test/fixtures/load/config',
 			}
 
 			try {
-				// @ts-ignore
-				const config = await SpringCloudConfig.load(options);
+				await SpringCloudConfig.load(options);
 				assert.fail('did not fail', 'a failure', 'this attempt should fail');
 			}
 			catch (error) {
@@ -142,14 +143,14 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should fail with invalid bootstrap path', async function() {
-			let options = {
+			const options: CloudConfigOptions = {
 				bootstrapPath: './badPath/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: []
 			}
 
 			try {
-				const config = await SpringCloudConfig.load(options);
+				await SpringCloudConfig.load(options);
 				assert.fail('did not fail', 'a failure', 'this attempt should fail');
 			}
 			catch (error) {
@@ -158,7 +159,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should fail with invalid app config path', async function() {
-			let options = {
+			const options: CloudConfigOptions = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './badPath/fixtures/load/config',
 				activeProfiles: [],
@@ -166,7 +167,7 @@ describe('SpringCloudConfig', function() {
 			}
 
 			try {
-				const config = await SpringCloudConfig.load(options);
+				await SpringCloudConfig.load(options);
 				assert.fail('did not fail', 'a failure', 'this attempt should fail');
 			}
 			catch (error) {
@@ -175,17 +176,17 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should succeed with no bootstrap path and same config folder', async function() {
-			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
+			this.sandbox.stub(cloudConfigClient, 'load').returns(
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
-			let options = {
+			const options: CloudConfigOptions = {
 				configPath: './test/fixtures/load/configSameFolder',
 				activeProfiles: [],
 				level: 'debug'
 			}
 
 			try {
-				const config = await SpringCloudConfig.load(options);
+				const config: ConfigObject = await SpringCloudConfig.load(options);
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://localhost:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -197,10 +198,10 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should load default configs with no profile', async function() {
-			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
+			this.sandbox.stub(cloudConfigClient, 'load').returns(
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
-			let options = {
+			const options: CloudConfigOptions = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: [],
@@ -208,7 +209,7 @@ describe('SpringCloudConfig', function() {
 			}
 
 			try {
-				const config = await SpringCloudConfig.load(options);
+				const config: ConfigObject = await SpringCloudConfig.load(options);
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://localhost:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -223,7 +224,7 @@ describe('SpringCloudConfig', function() {
 			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
-			let options = {
+			const options: CloudConfigOptions = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/appNameConfig',
 				activeProfiles: [],
@@ -231,7 +232,7 @@ describe('SpringCloudConfig', function() {
 			}
 
 			try {
-				const config = await SpringCloudConfig.load(options);
+				const config: ConfigObject = await SpringCloudConfig.load(options);
 				assert.deepEqual(config.spring.cloud.config.name, 'custom-app-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://localhost:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -245,7 +246,7 @@ describe('SpringCloudConfig', function() {
 			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
-			let options = {
+			const options: CloudConfigOptions = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: ['dev2'],
@@ -253,7 +254,7 @@ describe('SpringCloudConfig', function() {
 			}
 
 			try {
-				const config = await SpringCloudConfig.load(options);
+				const config: ConfigObject = await SpringCloudConfig.load(options);
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://dev-config-server:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -265,7 +266,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should load cloud configs with default profile', async function() {
-			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
+			this.sandbox.stub(cloudConfigClient, 'load').returns(
 				Promise.resolve({
 					forEach(callback, aBoolValue) {
 						callback('testUrl', 'http://www.default-local.com');
@@ -274,7 +275,7 @@ describe('SpringCloudConfig', function() {
 					}
 				})
 			);
-			let options = {
+			const options: CloudConfigOptions = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: ['default'],
@@ -282,7 +283,7 @@ describe('SpringCloudConfig', function() {
 			}
 
 			try {
-				const config = await SpringCloudConfig.load(options);
+				const config: ConfigObject = await SpringCloudConfig.load(options);
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://localhost:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -296,7 +297,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should load cloud configs with dev profile', async function() {
-			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
+			this.sandbox.stub(cloudConfigClient, 'load').returns(
 				Promise.resolve({
 					forEach(callback, aBoolValue) {
 						callback('testUrl', 'http://www.dev-cloud.com');
@@ -305,7 +306,7 @@ describe('SpringCloudConfig', function() {
 					}
 				})
 			);
-			let options = {
+			const options: CloudConfigOptions = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: ['dev1'],
@@ -313,7 +314,7 @@ describe('SpringCloudConfig', function() {
 			}
 
 			try {
-				const config = await SpringCloudConfig.load(options);
+				const config: ConfigObject = await SpringCloudConfig.load(options);
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(config.spring.cloud.config.endpoint, 'http://dev-config-server:8888');
 				assert.deepEqual(config.spring.cloud.config.label, 'master');
@@ -338,10 +339,10 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should return instance with defaults', async function() {
-			var cloudLoadStub = this.sandbox.stub(cloudConfigClient, 'load').returns(
+			this.sandbox.stub(cloudConfigClient, 'load').returns(
 				Promise.resolve({forEach(callback, aBoolValue) {}})
 			);
-			let options = {
+			const options: CloudConfigOptions = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: [],
@@ -349,8 +350,8 @@ describe('SpringCloudConfig', function() {
 			}
 
 			try {
-				const config = await SpringCloudConfig.load(options);
-				let theConfig = SpringCloudConfig.instance();
+				await SpringCloudConfig.load(options);
+				const theConfig: ConfigObject = SpringCloudConfig.instance();
 				assert.deepEqual(theConfig.spring.cloud.config.name, 'the-application-name');
 				assert.deepEqual(theConfig.spring.cloud.config.endpoint, 'http://localhost:8888');
 				assert.deepEqual(theConfig.testUrl, 'http://www.default.com');
