@@ -88,7 +88,7 @@ describe('SpringCloudConfig', function() {
 			});
 		});
 
-		it('should skip cloud config if unreachable', async function() {
+		it('should skip cloud config if unreachable (without fail-fast)', async function() {
 			cloudLoadStub.throws(new Error('some error'));
 			const bootstrapConfig: ConfigObject = {
 				spring: {cloud: {config: {
@@ -102,6 +102,21 @@ describe('SpringCloudConfig', function() {
 			return readCloudConfig.should.eventually.be.fulfilled.then((config: ConfigObject) => {
 				assert.deepEqual(config, {});
 			});
+		});
+
+		it('should throw error if cloud config errors and fail-fast is true', async function() {
+			cloudLoadStub.throws(new Error('some error'));
+			const bootstrapConfig: ConfigObject = {
+				spring: {cloud: {config: {
+					enabled: true,
+					'fail-fast': true,
+					name: 'the-application-name',
+					endpoint: 'http://somenonexistentdomain:8888'
+				}}},
+			};
+
+			const readCloudConfig: Promise<ConfigObject> = SpringCloudConfig.readCloudConfig(bootstrapConfig);
+			return readCloudConfig.should.eventually.be.rejected;
 		});
 
 	});

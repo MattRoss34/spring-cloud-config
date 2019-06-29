@@ -12,6 +12,7 @@ export const BootstrapConfigSchema = joi.object().keys({
         cloud: joi.object().required().keys({
             config: joi.object().required().keys({
                 enabled: joi.boolean().required(),
+                'fail-fast': joi.boolean(),
                 name: joi.string(),
                 endpoint: joi.string().uri().when(
                     'enabled',
