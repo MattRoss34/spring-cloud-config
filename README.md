@@ -52,6 +52,7 @@ spring.cloud.config.endpoint: http://dev-config-server:8888
 Consume the module in your script.
 ```javascript
 const springCloudConfig = require('spring-cloud-config');
+
 let configOptions = {
     configPath: __dirname + '/config',
     activeProfiles: ['dev1'],
@@ -60,6 +61,21 @@ let configOptions = {
 let myConfig = springCloudConfig.load(configOptions);
 // Now let's use the config properties
 let myMongoUrl = myConfig.db.mongo.url;
+```
+
+Using typescript? No problem...
+```javascript
+import * as SpringCloudConfig from 'spring-cloud-config';
+import { CloudConfigOptions, ConfigObject } from 'spring-cloud-config';
+
+const cloudConfigOptions: CloudConfigOptions = {
+    configPath: __dirname + '/config',
+    activeProfiles: ['dev1'],
+    level: 'debug'
+};
+const myConfig: ConfigObject = SpringCloudConfig.load(cloudConfigOptions);
+// Now let's use the config properties
+const myMongoUrl: string = myConfig.db.mongo.url;
 ```
 
 ## Things Explained
