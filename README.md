@@ -156,9 +156,11 @@ spring.cloud.config.rejectUnauthorized | boolean | default = true: if false acce
 spring.cloud.config.auth | Object | optional: Basic Authentication for config server (e.g.: { user: "username", pass: "password"}). endpoint accepts also basic auth (e.g. http://user:pass@localhost:8888).
 spring.cloud.config.auth.user | string | mandatory username if using auth
 spring.cloud.config.auth.pass | string | mandatory password if using auth
+profiles | string | Comma separated string of profiles. Indicates which profiles the properties in the current yaml document apply to.
 
 ### `application.yml` Application Config Properties
 Option | Type | Description
 ------ | -------- | -----------
 spring.cloud.config.name | String | Optional - You can override/specify your application name here, or in bootstrap.yml. This is an option so that you can share bootstrap.yml with other applications but still use your own application name.
+profiles | string | Comma separated string of profiles. Indicates which profiles the properties in the current yaml document apply to.
 any.property.you.need | ? | This is your playground where you define whatever properties your application needs to function.

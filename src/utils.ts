@@ -88,7 +88,7 @@ export const mergeProperties = (objects: object[]): object => {
  * @param {object} propertiesObject Object containing properties to be parsed
  * @returns {object} Object of deeply nested properties (not dot-separated)
  */
-export const parsePropertiesToObjects = (propertiesObject: object): object => {
+export const parsePropertiesToObjects = (propertiesObject: object | undefined): object => {
     var object: object = {};
     if (propertiesObject) {
         for (let thisPropertyName in propertiesObject) {
