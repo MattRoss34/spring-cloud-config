@@ -13,6 +13,13 @@ export const BootstrapConfigSchema = joi.object().keys({
             config: joi.object().required().keys({
                 enabled: joi.boolean().required(),
                 'fail-fast': joi.boolean(),
+                retry: joi.object().keys({
+                    enabled: joi.boolean().required(),
+                    'max-attempts': joi.number(),
+                    'max-interval': joi.number(),
+                    'initial-interval': joi.number(),
+                    multiplier: joi.number()
+                }),
                 name: joi.string(),
                 endpoint: joi.string().uri().when(
                     'enabled',

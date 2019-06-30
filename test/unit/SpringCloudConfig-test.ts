@@ -104,7 +104,7 @@ describe('SpringCloudConfig', function() {
 			});
 		});
 
-		it('should throw error if cloud config errors and fail-fast is true', async function() {
+		it('should throw error if cloud config errors and fail-fast is true, retry disabled', async function() {
 			cloudLoadStub.throws(new Error('some error'));
 			const bootstrapConfig: ConfigObject = {
 				spring: {cloud: {config: {
@@ -117,6 +117,78 @@ describe('SpringCloudConfig', function() {
 
 			const readCloudConfig: Promise<ConfigObject> = SpringCloudConfig.readCloudConfig(bootstrapConfig);
 			return readCloudConfig.should.eventually.be.rejected;
+		});
+
+		it('should throw error if cloud config errors and max-attempts is exceeded', async function() {
+			cloudLoadStub.throws(new Error('some error'));
+			const bootstrapConfig: ConfigObject = {
+				spring: {cloud: {config: {
+					enabled: true,
+					'fail-fast': true,
+					name: 'the-application-name',
+					endpoint: 'http://somenonexistentdomain:8888',
+					retry: {
+						enabled: true,
+						'initial-interval': 100,
+						'max-interval': 150,
+						'max-attempts': 3
+					}
+				}}},
+			};
+
+			const readCloudConfig: Promise<ConfigObject> = SpringCloudConfig.readCloudConfig(bootstrapConfig);
+			return readCloudConfig.should.eventually.be.rejectedWith('Error retrieving remote configuration: Maximum retries exceeded.');
+		});
+
+		it('should succeed if remote configuration retrieval succeeds', async function() {
+			cloudLoadStub.returns(
+				Promise.resolve({
+					forEach(callback, aBoolValue) {
+						callback('testUrl', 'http://www.default-local.com');
+						callback('featureFlags.feature1', true);
+						callback('featureFlags.feature2', false);
+					}
+				})
+			);
+			const bootstrapConfig: ConfigObject = {
+				spring: {cloud: {config: {
+					enabled: true,
+					'fail-fast': true,
+					name: 'the-application-name',
+					endpoint: 'http://somenonexistentdomain:8888'
+				}}},
+			};
+
+			const readCloudConfig: Promise<ConfigObject> = SpringCloudConfig.readCloudConfig(bootstrapConfig);
+			return readCloudConfig.should.eventually.be.fulfilled.then((config: ConfigObject) => {
+				assert.deepEqual(config.testUrl, 'http://www.default-local.com');
+				assert.deepEqual(config.featureFlags.feature1, true);
+				assert.deepEqual(config.featureFlags.feature2, false);
+			});
+		});
+
+		it('should succeed if retry succeeds', async function() {
+			cloudLoadStub
+				.onFirstCall().throws(new Error('some error'))
+				.onSecondCall().throws(new Error('some error'))
+				.onThirdCall().returns(Promise.resolve({forEach(callback, aBoolValue) {}}));
+			const bootstrapConfig: ConfigObject = {
+				spring: {cloud: {config: {
+					enabled: true,
+					'fail-fast': true,
+					name: 'the-application-name',
+					endpoint: 'http://somenonexistentdomain:8888',
+					retry: {
+						enabled: true,
+						'initial-interval': 100,
+						'max-interval': 150,
+						'max-attempts': 3
+					}
+				}}},
+			};
+
+			const readCloudConfig: Promise<ConfigObject> = SpringCloudConfig.readCloudConfig(bootstrapConfig);
+			return readCloudConfig.should.eventually.be.fulfilled;
 		});
 
 	});
