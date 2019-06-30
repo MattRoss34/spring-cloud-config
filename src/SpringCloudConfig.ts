@@ -3,12 +3,13 @@ import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as cloudConfigClient from 'cloud-config-client';
 import logger from './logger';
-import { ConfigObject, CloudConfigOptions } from './models';
+import { ConfigObject, CloudConfigOptions, RetryState, RetryConfig } from './models';
 import { mergeProperties, readYamlAsDocument, parsePropertiesToObjects } from './utils';
 import { CloudConfigOptionsSchema, BootstrapConfigSchema } from './schemas';
 
 let bootstrapConfig: ConfigObject;
 let config: ConfigObject;
+let retryState: RetryState;
 
 /**
  * Initialize the config instance by reading all property sources.
@@ -57,7 +58,7 @@ export const readConfig = async (options: CloudConfigOptions): Promise<ConfigObj
 			&& applicationConfig.spring.cloud.config 
 			&& applicationConfig.spring.cloud.config.name)
 			bootstrapConfig.spring.cloud.config.name = applicationConfig.spring.cloud.config.name;
-	
+
 	const cloudConfig: ConfigObject = await readCloudConfig(bootstrapConfig);
 	propertiesObjects.push(cloudConfig);
 
@@ -121,30 +122,62 @@ export const readApplicationConfig = async (appConfigPath: string, activeProfile
 /**
  * Reads the external configuration from Spring Cloud Config Server
  *
- * @param {ConfigObject} bootStrapConfig The bootstrap properties needed for Spring Cloud Config
+ * @param {ConfigObject} bootstrapConfig The bootstrap properties needed for Spring Cloud Config
  * @returns {Promise<ConfigObject>} The Spring Environment Object obtained from the Config Server
  */
-export const readCloudConfig = async (bootStrapConfig: ConfigObject): Promise<ConfigObject> => {
+export const readCloudConfig = async (bootstrapConfig: ConfigObject): Promise<ConfigObject> => {
+	const { config } = bootstrapConfig.spring.cloud;
+	const retryConfig: RetryConfig = config.retry;
 	let cloudConfig = {};
-	if (bootStrapConfig.spring.cloud.config.enabled) {
-		logger.debug("Spring Cloud Options: " + JSON.stringify(bootStrapConfig.spring.cloud.config));
+
+	if (config.enabled) {
+		logger.debug("Spring Cloud Options: " + JSON.stringify(config));
 		try {
-			const cloudConfigProperties: ConfigObject = 
-				await cloudConfigClient.load(bootStrapConfig.spring.cloud.config, null);
+			if (retryState === undefined) {
+				retryState = new RetryState(retryConfig);
+			}
+
+			const cloudConfigProperties: ConfigObject = await cloudConfigClient.load(config, null);
 			if (cloudConfigProperties) {
 				cloudConfigProperties.forEach(function(key, value) {
 					cloudConfig[key] = value;
 				}, false);
 				cloudConfig = parsePropertiesToObjects(cloudConfig);
 			}
+
+			retryState.reset();
 			logger.debug("Cloud Config: " + JSON.stringify(cloudConfig));
 		} catch (error) {
-			logger.error("Error reading cloud config: ", error);
-			if (bootStrapConfig.spring.cloud.config['fail-fast'] === true) {
+			logger.warn("Error reading cloud config: ", error);
+			if (config['fail-fast'] === true) {
+				if (retryConfig && retryConfig.enabled === true) {
+					return await retryReadCloudConfig(bootstrapConfig);
+				}
+
 				throw error;
 			}
 		};
 	}
 	
 	return cloudConfig;
+}
+
+/**
+ * Retries the readCloudConfig function based on the provided retry configuration in bootstrapConfig
+ *
+ * @param {ConfigObject} bootstrapConfig The bootstrap properties needed for Spring Cloud Config
+ * @returns {Promise<ConfigObject>} The Spring Environment Object obtained from the Config Server
+ */
+export const retryReadCloudConfig = async (bootstrapConfig: ConfigObject): Promise<ConfigObject> => {
+	retryState.registerRetry();
+	return new Promise((resolve, reject) => {
+		setTimeout(async () => {
+			logger.warn(`retrying after ${retryState.currentInterval}ms...`);
+			try {
+				resolve(await readCloudConfig(bootstrapConfig));
+			} catch (error) {
+				reject(error);
+			}
+		}, retryState.currentInterval);
+	});
 }

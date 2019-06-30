@@ -150,9 +150,15 @@ Returns the current configuration properties object. Use the `load` function pri
 ### `bootstrap.yml` Cloud Config Options
 Option | Type | Description
 ------ | -------- | -----------
-spring.cloud.config | Object | The config options to use for fetching remote properties from a Spring Cloud Config Server.
+spring.cloud.config | object | The config options to use for fetching remote properties from a Spring Cloud Config Server.
 spring.cloud.config.enabled | boolean | Enable/disable the usage of remote properties via a Spring Cloud Config Server.
 spring.cloud.config.fail-fast | boolean | Enable/disable throwing an error when remote config retrieval fails.
+spring.cloud.config.retry | object | Optional. Controls the retry logic for remote configuration retrieval.
+spring.cloud.config.retry.enabled | boolean | Enable/disable retry. If enabled, retrieval of remote configuration properties will be retried if it fails. See additional properties below.
+spring.cloud.config.retry.max-attempts | number | Maximum times to retry. Default: 6
+spring.cloud.config.retry.max-interval | number | Maximum interval in milliseconds to wait between retries. Default 1500
+spring.cloud.config.retry.initial-interval | number | Initial interval in milliseconds to wait before the first retry. Default: 1000
+spring.cloud.config.retry.multiplier | number | Factor by which the retry interval will increase between retries. Default: 1.1
 Properties Inherited from [cloud-config-client](https://www.npmjs.com/package/cloud-config-client) | | 
 spring.cloud.config.name | String | Optional - The application name to be used for reading remote properties. Alternatively, if not provided here, this must be specified in your application.yml.
 spring.cloud.config.endpoint | String | The url endpoint of the Spring Cloud Config Server.
