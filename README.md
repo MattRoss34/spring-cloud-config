@@ -147,11 +147,11 @@ Reads all defined property sources, including remote cloud config properties (if
 
 Parameter | Type | Description
 --------- | ---- | -----------
-options | Object | Holds the options properties that help you configure the behavior of this module.
-options.bootstrapPath | String | Optional - The folder path to your bootstrap config file. If not provided, then options.configPath location must contain both bootstrap.yml and application.yml.
-options.configPath | String | The folder path to your yaml config file(s).
-options.activeProfiles | String[] | Profile names to filter your local yaml documents, as well as your remote property sources, by.
-options.level | String | Logging level to use.
+options | Object | (Required) Holds the options properties that help you configure the behavior of this module.
+options.bootstrapPath | String | (Optional) The folder path to your bootstrap config file. If not provided, then options.configPath location must contain both bootstrap.yml and application.yml.
+options.configPath | String | (Required) The folder path to your yaml config file(s).
+options.activeProfiles | String[] | (Required) Profile names to filter your local yaml documents, as well as your remote property sources, by.
+options.level | String | (Optional) Logging level to use.
 
 ### `instance` function
 
@@ -162,25 +162,25 @@ Option | Type | Description
 ------ | -------- | -----------
 spring.cloud.config | object | (Required) The config options to use for fetching remote properties from a Spring Cloud Config Server.
 spring.cloud.config.enabled | boolean | (Required) Enable/disable the usage of remote properties via a Spring Cloud Config Server.
-spring.cloud.config.fail-fast | boolean | Enable/disable throwing an error when remote config retrieval fails.
-spring.cloud.config.retry | object | Optional. Controls the retry logic for remote configuration retrieval.
-spring.cloud.config.retry.enabled | boolean | Enable/disable retry. If enabled, retrieval of remote configuration properties will be retried if it fails. See additional properties below.
-spring.cloud.config.retry.max-attempts | number | Maximum times to retry. Default: 6
-spring.cloud.config.retry.max-interval | number | Maximum interval in milliseconds to wait between retries. Default 1500
-spring.cloud.config.retry.initial-interval | number | Initial interval in milliseconds to wait before the first retry. Default: 1000
-spring.cloud.config.retry.multiplier | number | Factor by which the retry interval will increase between retries. Default: 1.1
+spring.cloud.config.fail-fast | boolean | (Optional, Default: false) Enable/disable throwing an error when remote config retrieval fails.
+spring.cloud.config.retry | object | (Optional) Controls the retry logic for remote configuration retrieval.
+spring.cloud.config.retry.enabled | boolean | (Optional, Default: false) Enable/disable retry. If enabled, retrieval of remote configuration properties will be retried if it fails. See additional properties below.
+spring.cloud.config.retry.max-attempts | number | (Optional, Default: 6) Maximum times to retry.
+spring.cloud.config.retry.max-interval | number | (Optional, Default: 1500) Maximum interval in milliseconds to wait between retries.
+spring.cloud.config.retry.initial-interval | number | (Optional, Default: 1000) Initial interval in milliseconds to wait before the first retry.
+spring.cloud.config.retry.multiplier | number | (Optional, Default: 1.1) Factor by which the retry interval will increase between retries.
 profiles | string | (Optional) Comma separated string of profiles. Indicates which profiles the properties in the current yaml document apply to.
-spring.cloud.config.name | String | Optional - The application name to be used for reading remote properties. Alternatively, if not provided here, this must be specified in your application.yml.
-spring.cloud.config.endpoint | String | Mandatory if cloud config is enabled. The url endpoint of the Spring Cloud Config Server.
-spring.cloud.config.label | String | The cloud config label to use.
-spring.cloud.config.rejectUnauthorized | boolean | default = true: if false accepts self-signed certificates
-spring.cloud.config.auth | Object | optional: Basic Authentication for config server (e.g.: { user: "username", pass: "password"}). endpoint accepts also basic auth (e.g. http://user:pass@localhost:8888).
-spring.cloud.config.auth.user | string | mandatory username if using auth
-spring.cloud.config.auth.pass | string | mandatory password if using auth
+spring.cloud.config.name | String | (Optional) The application name to be used for reading remote properties. Alternatively, if not provided here, this must be specified in your application.yml.
+spring.cloud.config.endpoint | String | (Optional, Default: http://localhost:8888) The url endpoint of the Spring Cloud Config Server.
+spring.cloud.config.label | String | (Optional, Default: master) The cloud config label to use.
+spring.cloud.config.rejectUnauthorized | boolean | (Optional, Default: true) if false accepts self-signed certificates
+spring.cloud.config.auth | Object | (Optional) Basic Authentication for config server (e.g.: { user: "username", pass: "password"}). endpoint accepts also basic auth (e.g. http://user:pass@localhost:8888).
+spring.cloud.config.auth.user | string | (Required) username if using auth
+spring.cloud.config.auth.pass | string | (Required) password if using auth
 
 ### `application.yml` Application Config Properties
 Option | Type | Description
 ------ | -------- | -----------
-spring.cloud.config.name | String | Optional - You can override/specify your application name here, or in bootstrap.yml. This is an option so that you can share bootstrap.yml with other applications but still use your own application name.
-profiles | string | Comma separated string of profiles. Indicates which profiles the properties in the current yaml document apply to.
-any.property.you.need | ? | This is your playground where you define whatever properties your application needs to function.
+spring.cloud.config.name | String | (Optional) You can override/specify your application name here, or in bootstrap.yml. This is an option so that you can share bootstrap.yml with other applications but still use your own application name.
+profiles | string | (Optional) Comma separated string of profiles. Indicates which profiles the properties in the current yaml document apply to.
+any.property.you.need | ? | This is where you define whatever properties your application needs to be awesome!

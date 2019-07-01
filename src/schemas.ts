@@ -21,12 +21,7 @@ export const BootstrapConfigSchema = joi.object().keys({
                     multiplier: joi.number()
                 }),
                 name: joi.string(),
-                endpoint: joi.string().uri().when(
-                    'enabled',
-                    {
-                        is: true,
-                        then: joi.required()
-                    }),
+                endpoint: joi.string().uri(),
                 label: joi.string(),
                 rejectUnauthorized: joi.boolean(),
                 auth: joi.object().keys({
