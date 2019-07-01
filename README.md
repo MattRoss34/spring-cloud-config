@@ -86,7 +86,7 @@ As mentioned above, this module uses Yaml files to configure your application pr
 
 ### Support for Profiles in Multi-Document Yaml
 
-As with any Yaml implementation, you can include multiple documents in each Yaml file using `---` as a separator. Additionally, this module allows you to define documents that apply to specific 'profiles', same as the 'spring.profiles' concept. If you include a `profiles` property in a given yaml document, the properties in that document will only be included in your merged configuration result if any of the `configOptions.activeProfiles` match up with the specified profiles.
+As with any Yaml implementation you can include multiple documents in a single Yaml file, using `---` as a separator. Additionally, this module allows you to define documents that apply to specific 'profiles', same as the 'spring.profiles' concept. If you include a `profiles` property in a given yaml document, the properties in that document will only be included in your merged configuration result if any of the `configOptions.activeProfiles` match up with the specified profiles.
 
 #### Example application.yml
 ```yaml
@@ -128,7 +128,17 @@ If you enable the use of spring cloud config via the bootstrap property `spring.
 
 #### Cloud Config Client Fail Fast
 
-If you need configuration loading to throw an error when it can't reach the cloud config server, set the bootstrap property `spring.cloud.config.fail-fast: true`.
+If you need spring-cloud-config to throw an error when it can't reach the cloud config server, set the bootstrap property `spring.cloud.config.fail-fast: true`. Combine this with enabling retry (see below) to provide some resiliency to your cloud configuration retrieval.
+
+#### Cloud Config Client Retry
+
+If you'd like spring-cloud-config to retry connecting to your cloud config server after a failure, set the bootstrap property `spring.cloud.config.retry.enabled: true`, in addition to setting `fail-fast` to true (see above). When retry is enabled, spring-cloud-config will retry the config server connection based on the retry configuration you provide, or based on the default configuration.  Below are the retry properties and their defaults. See the API specs further down for details.
+
+- `spring.cloud.config.retry.enabled`: false
+- `spring.cloud.config.retry.max-attempts`: 6
+- `spring.cloud.config.retry.max-interval`: 1500 (ms)
+- `spring.cloud.config.retry.initial-interval`: 1000 (ms)
+- `spring.cloud.config.retry.multiplier`: 1.1
 
 ## API
 ### `load` function
@@ -150,8 +160,8 @@ Returns the current configuration properties object. Use the `load` function pri
 ### `bootstrap.yml` Cloud Config Options
 Option | Type | Description
 ------ | -------- | -----------
-spring.cloud.config | object | The config options to use for fetching remote properties from a Spring Cloud Config Server.
-spring.cloud.config.enabled | boolean | Enable/disable the usage of remote properties via a Spring Cloud Config Server.
+spring.cloud.config | object | (Required) The config options to use for fetching remote properties from a Spring Cloud Config Server.
+spring.cloud.config.enabled | boolean | (Required) Enable/disable the usage of remote properties via a Spring Cloud Config Server.
 spring.cloud.config.fail-fast | boolean | Enable/disable throwing an error when remote config retrieval fails.
 spring.cloud.config.retry | object | Optional. Controls the retry logic for remote configuration retrieval.
 spring.cloud.config.retry.enabled | boolean | Enable/disable retry. If enabled, retrieval of remote configuration properties will be retried if it fails. See additional properties below.
@@ -159,15 +169,14 @@ spring.cloud.config.retry.max-attempts | number | Maximum times to retry. Defaul
 spring.cloud.config.retry.max-interval | number | Maximum interval in milliseconds to wait between retries. Default 1500
 spring.cloud.config.retry.initial-interval | number | Initial interval in milliseconds to wait before the first retry. Default: 1000
 spring.cloud.config.retry.multiplier | number | Factor by which the retry interval will increase between retries. Default: 1.1
-Properties Inherited from [cloud-config-client](https://www.npmjs.com/package/cloud-config-client) | | 
+profiles | string | (Optional) Comma separated string of profiles. Indicates which profiles the properties in the current yaml document apply to.
 spring.cloud.config.name | String | Optional - The application name to be used for reading remote properties. Alternatively, if not provided here, this must be specified in your application.yml.
-spring.cloud.config.endpoint | String | The url endpoint of the Spring Cloud Config Server.
+spring.cloud.config.endpoint | String | Mandatory if cloud config is enabled. The url endpoint of the Spring Cloud Config Server.
 spring.cloud.config.label | String | The cloud config label to use.
 spring.cloud.config.rejectUnauthorized | boolean | default = true: if false accepts self-signed certificates
 spring.cloud.config.auth | Object | optional: Basic Authentication for config server (e.g.: { user: "username", pass: "password"}). endpoint accepts also basic auth (e.g. http://user:pass@localhost:8888).
 spring.cloud.config.auth.user | string | mandatory username if using auth
 spring.cloud.config.auth.pass | string | mandatory password if using auth
-profiles | string | Comma separated string of profiles. Indicates which profiles the properties in the current yaml document apply to.
 
 ### `application.yml` Application Config Properties
 Option | Type | Description
