@@ -4,32 +4,34 @@ import {
 	mergeProperties,
 	parsePropertiesToObjects,
 	createObjectForProperty,
-	shouldUseDocument
+	shouldUseDocument,
+	retryFunctionWithState
 } from '../../src/utils';
-import { Document } from '../../src';
+import { Document, RetryOptions, RetryState, ConfigObject } from '../../src';
+import * as sinon from 'sinon';
 
 describe('utils', function() {
 
 	describe("#readYaml()", function() {
 
 		it("should read test yaml without profiles", async function() {
-			const testProperties: Document = readYaml('./test/fixtures/readYaml/test.yml')
+			const testProperties: Document = readYaml('./test/fixtures/readYaml/test.yml');
 			assert.deepEqual(testProperties['test.unit.testBool'], true);
 			assert.deepEqual(testProperties['test.unit.testString'], 'testing');
 			assert.deepEqual(testProperties['test.unit.testNumber'], 12345);
 		});
 
 		it("should read yaml and parse doc by profiles", async function() {
-			const testProperties: Document = readYaml('./test/fixtures/readYaml/test-yaml-docs.yml', ['development'])
+			const testProperties: Document = readYaml('./test/fixtures/readYaml/test-yaml-docs.yml', ['development']);
 			assert.deepEqual(testProperties['test.unit.testBool'], true);
 			assert.deepEqual(testProperties['test.unit.testString'], 'testing again');
 			assert.deepEqual(testProperties['test.unit.testNumber'], 23456);
 		});
 
 		it("should read yaml and parse doc by profiles, even with multiple profiles", async function() {
-			const testProperties: Document = readYaml('./test/fixtures/readYaml/test-yaml-with-profiles.yml', ['env1','env4'])
-			assert.deepEqual(testProperties['urlProperty'], 'http://www.testdomain-shared.com');
-			assert.deepEqual(testProperties['propertyGroup']['groupProperty'], false);
+			const testProperties: Document = readYaml('./test/fixtures/readYaml/test-yaml-with-profiles.yml', ['env1', 'env4']);
+			assert.deepEqual(testProperties.urlProperty, 'http://www.testdomain-shared.com');
+			assert.deepEqual(testProperties.propertyGroup.groupProperty, false);
 		});
 
 	});
@@ -164,34 +166,84 @@ describe('utils', function() {
 
 		it('should use document when multiple doc.profiles match active profiles', async function() {
 			const doc: Document = {'profiles': 'devEast,devWest,stagingEast'};
-			let activeProfiles: string[] = ['devEast','devWest'];
+			let activeProfiles: string[] = ['devEast', 'devWest'];
 			assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
-			activeProfiles = ['devWest','stagingEast'];
+			activeProfiles = ['devWest', 'stagingEast'];
 			assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
-			activeProfiles = ['stagingEast','devEast'];
+			activeProfiles = ['stagingEast', 'devEast'];
 			assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
 		});
 
 		it('should NOT use document when not operator used in doc.profiles for active profile', async function() {
 			const doc: Document = {'profiles': 'devEast,!devWest,stagingEast'};
-			let activeProfiles: string[] = ['devEast','devWest'];
+			let activeProfiles: string[] = ['devEast', 'devWest'];
 			assert.deepEqual(shouldUseDocument(doc, activeProfiles), false);
-			activeProfiles = ['devWest','stagingEast'];
+			activeProfiles = ['devWest', 'stagingEast'];
 			assert.deepEqual(shouldUseDocument(doc, activeProfiles), false);
 		});
 
 		it('should use document when not operator used in doc.profiles for non-active profile', async function() {
 			let doc: Document = {'profiles': 'devEast,devWest,!stagingEast'};
-			let activeProfiles: string[] = ['devEast','devWest'];
+			let activeProfiles: string[] = ['devEast', 'devWest'];
 			assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
 			doc = {'profiles': 'devEast,!devWest,stagingEast'};
 			activeProfiles = ['devEast'];
 			assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
 			doc = {'profiles': '!devEast,devWest,stagingEast'};
-			activeProfiles = ['devWest','stagingEast'];
+			activeProfiles = ['devWest', 'stagingEast'];
 			assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
 		});
 
+	});
+
+	describe('#retryFunctionWithState', async function() {
+		const sandbox = sinon.createSandbox();
+		let testMethod;
+
+		class TestClass {
+			public async testFunction(): Promise<object> {
+				return {};
+			}
+		}
+
+		beforeEach(function() {
+			testMethod = sandbox.stub(TestClass.prototype, 'testFunction');
+		});
+
+		afterEach(function() {
+			sandbox.restore();
+		});
+
+		it('should throw error when gateway throws error after max retry attempts is exceeded', async function() {
+			testMethod.throws(new Error('test error'));
+			const retryOptions: RetryOptions = {
+				enabled: true,
+				'initial-interval': 100,
+				'max-interval': 150,
+				'max-attempts': 3
+			};
+
+			const retryPromise: Promise<object> = retryFunctionWithState(() => testMethod(), new RetryState(retryOptions));
+			return retryPromise.should.eventually.be.rejectedWith('Error retrieving remote configuration: Maximum retries exceeded.');
+		});
+
+		it('should succeed if retry succeeds', async function() {
+			testMethod
+				.onFirstCall().throws(new Error('test error'))
+				.onSecondCall().throws(new Error('test error'))
+				// tslint:disable-next-line: no-empty
+				.onThirdCall().returns({});
+			const retryOptions: RetryOptions = {
+				enabled: true,
+				'initial-interval': 100,
+				'max-interval': 150,
+				'max-attempts': 3
+			};
+
+			const retryPromise: Promise<object> = retryFunctionWithState(() => testMethod(), new RetryState(retryOptions));
+
+			return retryPromise.should.eventually.be.fulfilled;
+		});
 	});
 
 });
