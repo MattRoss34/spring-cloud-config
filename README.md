@@ -49,33 +49,58 @@ profiles: dev1,dev2
 spring.cloud.config.endpoint: http://dev-config-server:8888
 ```
 
-Consume the module in your script.
+Load your configuration during startup/initialization.
 ```javascript
-const springCloudConfig = require('spring-cloud-config');
+const SpringCloudConfig = require('spring-cloud-config');
 
-let configOptions = {
+const configOptions = {
     configPath: __dirname + '/config',
     activeProfiles: ['dev1'],
     level: 'debug'
 };
-let myConfig = springCloudConfig.load(configOptions);
-// Now let's use the config properties
-let myMongoUrl = myConfig.db.mongo.url;
+let myConfig;
+
+SpringCloudConfig.load(configOptions).then(theConfig => {
+   myConfig = theConfig;
+   // now run your application with the loaded config props.
+   // do this by saving the returned config object somewhere,
+   // or by using the SpringCloudConfig.instance() helper.
+);
+```
+
+Use the config later on in your code.
+```javascript
+const SpringCloudConfig = require('spring-cloud-config');
+
+const myConfig = SpringCloudConfig.instance();
+console.log(`My Mongo DB URL: ${myConfig.db.mongo.url}`);
 ```
 
 Using typescript? No problem...
 ```javascript
-import * as SpringCloudConfig from 'spring-cloud-config';
-import { CloudConfigOptions, ConfigObject } from 'spring-cloud-config';
+import { Config, CloudConfigOptions, ConfigObject } from 'spring-cloud-config';
 
 const cloudConfigOptions: CloudConfigOptions = {
     configPath: __dirname + '/config',
     activeProfiles: ['dev1'],
     level: 'debug'
 };
-const myConfig: ConfigObject = SpringCloudConfig.load(cloudConfigOptions);
-// Now let's use the config properties
-const myMongoUrl: string = myConfig.db.mongo.url;
+
+let myConfig: ConfigObject;
+
+Config.load(cloudConfigOptions).then((theConfig: ConfigObject) => {
+   myConfig = theConfig;
+   // now run your application with the loaded config props.
+   // do this by saving the returned config object somewhere,
+   // or by using the Config.instance() helper.
+);
+```
+
+Now you can use the config properties later on.
+```javascript
+import { Config } from 'spring-cloud-config';
+
+console.log(`My Mongo DB URL: ${Config.instance().db.mongo.url}`);
 ```
 
 ## Things Explained
