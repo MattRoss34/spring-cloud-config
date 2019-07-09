@@ -11,7 +11,16 @@
         "interface-name": [true, "never-prefix"],
         "jsdoc-format": false,
         "label-position": true,
-        "member-ordering": [true, "public-before-private", "static-before-instance", "variables-before-functions"],
+        "member-ordering": [
+            true,
+            {
+                "order": [
+                    "public-before-private",
+                    "static-before-instance", 
+                    "variables-before-functions"
+                ]
+            }
+        ],
         "no-any": true,
         "no-arg": true,
         "no-bitwise": true,
@@ -23,7 +32,7 @@
         "no-empty": true,
         "no-eval": true,
         "no-implicit-dependencies": {
-            "options": true,
+            "options": [true, "dev"],
             "severity": "error"
         },
         "no-shadowed-variable": true,

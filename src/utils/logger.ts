@@ -19,4 +19,4 @@ const loggingConfig: LoggerOptions = {
   ]
 };
 
-export default createLogger(loggingConfig);
+export const logger = createLogger(loggingConfig);

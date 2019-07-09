@@ -1,6 +1,6 @@
 {
   "name": "spring-cloud-config",
-  "version": "4.4.2",
+  "version": "4.5.0",
   "description": "NodeJS application configuration using similar style to Spring Config and using the Spring Cloud Config Server for remote property sources.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,8 +8,10 @@
     "@hapi/joi": "^15.1.0",
     "cloud-config-client": "^1.0.0",
     "extend": "^3.0.2",
+    "inversify": "^5.0.1",
     "js-yaml": "^3.12.0",
     "logform": "^2.1.2",
+    "reflect-metadata": "^0.1.13",
     "winston": "^3.2.1",
     "yargs": "^13.3.0"
   },

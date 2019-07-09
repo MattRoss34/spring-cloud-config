@@ -1,3 +1,5 @@
+import { RetryOptions } from "./Retry";
+
 export interface CloudConfigOptions {
     bootstrapPath?: string;
     configPath: string;
@@ -5,8 +7,17 @@ export interface CloudConfigOptions {
     level?: string;
 }
 
+export interface ConfigClientRetryOptions extends RetryOptions {}
+
+export interface ConfigClientOptions {
+    enabled: boolean;
+    'fail-fast': boolean;
+    retry?: ConfigClientRetryOptions;
+}
+
 export interface Document {
-    [name: string]: any
+    // tslint:disable-next-line: no-any
+    [name: string]: any;
 }
 
 export interface ConfigObject extends Document {}
