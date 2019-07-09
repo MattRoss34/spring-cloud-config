@@ -1,9 +1,9 @@
-export interface RetryConfig {
-    enabled: boolean,
-    'max-attempts'?: number,
-    'max-interval'?: number,
-    'initial-interval'?: number,
-    multiplier?: number
+export interface RetryOptions {
+    enabled: boolean;
+    'max-attempts'?: number;
+    'max-interval'?: number;
+    'initial-interval'?: number;
+    multiplier?: number;
 }
 
 export class RetryState {
@@ -16,7 +16,7 @@ export class RetryState {
     public initialInterval: number;
     public multiplier: number;
 
-    constructor(private readonly config: RetryConfig = { enabled: false }) {
+    constructor(private readonly config: RetryOptions = { enabled: false }) {
         this.maxAttempts = this.getConfigProperty('max-attempts', 6);
         this.maxInterval = this.getConfigProperty('max-interval', 1500);
         this.initialInterval = this.getConfigProperty('initial-interval', 1000);
@@ -46,6 +46,7 @@ export class RetryState {
         this.currentInterval = 0;
     }
 
+    // tslint:disable-next-line: no-any
     private getConfigProperty(propertyName: string, defaultValue: any) {
         return this.config[propertyName] ? this.config[propertyName] : defaultValue;
     }

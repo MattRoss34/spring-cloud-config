@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import logger from '../../src/logger';
+import { logger } from "../../src/utils";
 
 describe('logger', function() {
 
