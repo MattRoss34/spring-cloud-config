@@ -1,9 +1,15 @@
 
 import * as yaml from 'js-yaml';
 import * as fs from 'fs';
-import { logger, getSpringApplicationJsonFromEnv, getCustomEnvProperties } from "./utils";
 import { ConfigObject, CloudConfigOptions } from './models';
-import { mergeProperties, readYamlAsDocument, parsePropertiesToObjects } from './utils';
+import {
+	mergeProperties,
+	readYamlAsDocument,
+	parsePropertiesToObjects,
+	logger,
+	getSpringApplicationJsonFromEnv,
+	getCustomEnvProperties
+} from './utils';
 import { CloudConfigOptionsSchema, BootstrapConfigSchema } from './schemas';
 import { SpringCloudConfigServiceImpl } from './services';
 import { injectable } from 'inversify';
