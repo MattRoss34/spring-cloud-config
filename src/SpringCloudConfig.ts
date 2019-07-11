@@ -1,9 +1,15 @@
 
 import * as yaml from 'js-yaml';
 import * as fs from 'fs';
-import { logger } from "./utils";
 import { ConfigObject, CloudConfigOptions } from './models';
-import { mergeProperties, readYamlAsDocument, parsePropertiesToObjects } from './utils';
+import {
+	mergeProperties,
+	readYamlAsDocument,
+	parsePropertiesToObjects,
+	logger,
+	getSpringApplicationJsonFromEnv,
+	getCustomEnvProperties
+} from './utils';
 import { CloudConfigOptionsSchema, BootstrapConfigSchema } from './schemas';
 import { SpringCloudConfigServiceImpl } from './services';
 import { injectable } from 'inversify';
@@ -26,8 +32,11 @@ export class SpringCloudConfig {
 	private async readBootstrapConfig(options: CloudConfigOptions): Promise<ConfigObject> {
 		// Load bootstrap.yml based on the profile name (like devEast or stagingEast)
 		const theBootstrapPath: string = options.bootstrapPath !== undefined ? options.bootstrapPath : options.configPath;
-		const thisBootstrapConfig: ConfigObject =
-			await readYamlAsDocument(`${theBootstrapPath}/bootstrap.yml`, options.activeProfiles);
+		let thisBootstrapConfig: ConfigObject = mergeProperties([
+			await readYamlAsDocument(`${theBootstrapPath}/bootstrap.yml`, options.activeProfiles),
+			getSpringApplicationJsonFromEnv(),
+			getCustomEnvProperties()
+		]);
 
 		const { error } = BootstrapConfigSchema.validate(thisBootstrapConfig, { allowUnknown: true });
 		if (error) {

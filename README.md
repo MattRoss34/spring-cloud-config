@@ -147,6 +147,15 @@ application-dev2.yml
 application-prod.yml
 ```
 
+### Node Env Property Sources
+
+This module supports some custom properties/property sources from the Node env.
+
+| Env Variable Name | Type | Usage |
+| --- | --- | --- |
+| SPRING_CONFIG_ENDPOINT | string | When set, `SPRING_CONFIG_ENDPOINT` will be mapped to `spring.cloud.config.endpoint` during the bootstrap phase. This value will take highest precedence so it'll override whatever value is provided from other sources.<p>Example: `SPRING_CONFIG_ENDPOINT=http://test:8888 node index.js` |
+| APPLICATION_JSON | Stringified JSON Object | When `APPLICATION_JSON` is set in Node env, the value will be read into the application's configuration as a high priority set of properties.<p>Example: `APPLICATION_JSON='{ "testProp": "testValue" }' node index.js` |
+
 ### Remote Property Sources
 
 If you enable the use of spring cloud config via the bootstrap property `spring.cloud.config.enabled: true`, the properties in `application.yml` will be overridden by any of the same properties defined in your remote sources. Keep in mind, however, any error encountered while reaching the remote property sources will be ignored, unless you set the bootstrap property `spring.cloud.config.fail-fast: true`. As a best practice, it is recommended that the properties defined in application.yml be kept up to date and represent the most current state of the application (as much as reasonably possible).
