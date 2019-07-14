@@ -2,8 +2,5 @@
   "extends": [
     "config:base"
   ],
-  "prConcurrentLimit": 5,
-  "ignoreDeps": [
-    "nyc"
-  ]
+  "prConcurrentLimit": 5
 }
