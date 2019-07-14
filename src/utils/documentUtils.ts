@@ -19,15 +19,13 @@ export const shouldUseDocument = (document: Document | undefined, activeProfiles
     } else if (document && activeProfiles) {
         const documentProfiles: string[] = document.profiles.split(",");
         for (let i = 0; i < documentProfiles.length; i++) {
-            if (documentProfiles[i]) {
-                if (documentProfiles[i][0] === "!") {
-                    const excludedProfile: string = documentProfiles[i].substring(1);
-                    if (activeProfiles.indexOf(excludedProfile) >= 0) {
-                        return false; // This document should not be used
-                    }
-                } else if (activeProfiles.indexOf(documentProfiles[i]) >= 0) {
-                    useThisDoc = true; // This document applies to the profiles
+            if (documentProfiles[i][0] === "!") {
+                const excludedProfile: string = documentProfiles[i].substring(1);
+                if (activeProfiles.indexOf(excludedProfile) >= 0) {
+                    return false; // This document should not be used
                 }
+            } else if (activeProfiles.indexOf(documentProfiles[i]) >= 0) {
+                useThisDoc = true; // This document applies to the profiles
             }
         }
     }
@@ -90,11 +88,9 @@ export const parsePropertiesToObjects = (propertiesObject: object | undefined): 
     var object: object = {};
     if (propertiesObject) {
         for (let thisPropertyName in propertiesObject) {
-            if (propertiesObject.hasOwnProperty(thisPropertyName)) {
-                const thisPropertyObject: object =
-                    createObjectForProperty(thisPropertyName.split('.'), propertiesObject[thisPropertyName]);
-                extend(true, object, thisPropertyObject);
-            }
+            const thisPropertyObject: object =
+                createObjectForProperty(thisPropertyName.split('.'), propertiesObject[thisPropertyName]);
+            extend(true, object, thisPropertyObject);
         }
     }
     return object;
