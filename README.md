@@ -149,11 +149,17 @@ application-prod.yml
 
 ### Node Env Property Sources
 
-This module supports some custom properties/property sources from the Node env.
+This module provides some pre-defined properties/property sources from the Node env. This enables you to exclude sensitive data from your repository files and instead provide them using environment variables.  For example, you might want to exclude the username and password used for authenticating with your remote config server from your git repo.
+
+When set, node env variables will be mapped to their respective config properties during the bootstrap phase. Be aware, env variables take highest precedence so they'll override whatever value is provided from other sources.
+
+#### Pre-Defined Env Variable Mappings
 
 | Env Variable Name | Type | Usage |
 | --- | --- | --- |
-| SPRING_CONFIG_ENDPOINT | string | When set, `SPRING_CONFIG_ENDPOINT` will be mapped to `spring.cloud.config.endpoint` during the bootstrap phase. This value will take highest precedence so it'll override whatever value is provided from other sources.<p>Example: `SPRING_CONFIG_ENDPOINT=http://test:8888 node index.js` |
+| SPRING_CONFIG_ENDPOINT | string | Maps to `spring.cloud.config.endpoint`.<p>Example: `SPRING_CONFIG_ENDPOINT=http://test:8888 node index.js` |
+| SPRING_CONFIG_AUTH_USER | string | Maps to `spring.cloud.config.auth.user`.<p>Example: `SPRING_CONFIG_AUTH_USER=user1 node index.js` |
+| SPRING_CONFIG_AUTH_PASS | string | Maps to `spring.cloud.config.auth.pass`.<p>Example: `SPRING_CONFIG_AUTH_PASS=user1password node index.js` |
 | APPLICATION_JSON | Stringified JSON Object | When `APPLICATION_JSON` is set in Node env, the value will be read into the application's configuration as a high priority set of properties.<p>Example: `APPLICATION_JSON='{ "testProp": "testValue" }' node index.js` |
 
 ### Remote Property Sources
