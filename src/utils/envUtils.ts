@@ -1,6 +1,6 @@
 import { ConfigObject } from '../models';
 import { logger } from './logger';
-import { CUSTOM_ENV_VARIABLES } from '../constants';
+import { PREDEFINED_ENV_PROPERTIES } from '../constants';
 import { parsePropertiesToObjects } from './documentUtils';
 
 /**
@@ -23,9 +23,9 @@ export const getSpringApplicationJsonFromEnv = (): ConfigObject => {
  *
  * @returns {ConfigObject} The env variables mapped to a config properties object.
  */
-export const getCustomEnvProperties = (): ConfigObject => {
+export const getPredefinedEnvProperties = (): ConfigObject => {
     let customEnvProperties: ConfigObject = {};
-    Object.entries(CUSTOM_ENV_VARIABLES).forEach(([customEnvVariable, propertyMapping]) => {
+    Object.entries(PREDEFINED_ENV_PROPERTIES).forEach(([customEnvVariable, propertyMapping]) => {
         if (process.env[customEnvVariable] !== undefined) {
             customEnvProperties[propertyMapping] = process.env[customEnvVariable];
         }

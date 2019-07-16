@@ -8,7 +8,7 @@ import {
 	parsePropertiesToObjects,
 	logger,
 	getSpringApplicationJsonFromEnv,
-	getCustomEnvProperties
+	getPredefinedEnvProperties
 } from './utils';
 import { CloudConfigOptionsSchema, BootstrapConfigSchema } from './schemas';
 import { SpringCloudConfigServiceImpl } from './services';
@@ -35,7 +35,7 @@ export class SpringCloudConfig {
 		let thisBootstrapConfig: ConfigObject = mergeProperties([
 			await readYamlAsDocument(`${theBootstrapPath}/bootstrap.yml`, options.activeProfiles),
 			getSpringApplicationJsonFromEnv(),
-			getCustomEnvProperties()
+			getPredefinedEnvProperties()
 		]);
 
 		const { error } = BootstrapConfigSchema.validate(thisBootstrapConfig, { allowUnknown: true });
