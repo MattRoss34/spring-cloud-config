@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { getSpringApplicationJsonFromEnv, getCustomEnvProperties } from '../../../src/utils';
+import { getSpringApplicationJsonFromEnv, getPredefinedEnvProperties } from '../../../src/utils';
 
 describe('envUtils', function() {
 
@@ -28,21 +28,21 @@ describe('envUtils', function() {
 
     });
 
-	describe('#getCustomEnvProperties', function () {
+	describe('#getPredefinedEnvProperties', function () {
 
         afterEach(function() {
 			delete process.env.SPRING_CONFIG_ENDPOINT;
 		});
 
 		it('should return empty if all are undefined', function (done: Function) {
-            assert.deepEqual(getCustomEnvProperties(), {});
+            assert.deepEqual(getPredefinedEnvProperties(), {});
             done();
         });
 
 		it('should return data when defined', function (done: Function) {
             process.env.SPRING_CONFIG_ENDPOINT = 'https://sometesturl:8888';
             assert.deepEqual(
-                getCustomEnvProperties(),
+                getPredefinedEnvProperties(),
                 { spring: { cloud: { config: { endpoint: 'https://sometesturl:8888' }}}}
             );
             done();
