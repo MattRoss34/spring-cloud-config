@@ -1,18 +1,19 @@
 
 import * as yaml from 'js-yaml';
 import * as fs from 'fs';
-import { ConfigObject, CloudConfigOptions } from './models';
+import { ConfigObject, CloudConfigOptions, CloudConfigOptionsInput } from './models';
 import {
 	mergeProperties,
 	readYamlAsDocument,
 	parsePropertiesToObjects,
 	logger,
 	getSpringApplicationJsonFromEnv,
-	getPredefinedEnvProperties
+	getPropertiesFromEnv
 } from './utils';
-import { CloudConfigOptionsSchema, BootstrapConfigSchema } from './schemas';
+import { BootstrapConfigSchema } from './schemas';
 import { SpringCloudConfigServiceImpl } from './services';
 import { injectable } from 'inversify';
+import { ENV_BOOTSTRAP_PROPERTIES, ENV_LOAD_OPTIONS } from './constants';
 
 @injectable()
 export class SpringCloudConfig {
@@ -35,7 +36,7 @@ export class SpringCloudConfig {
 		let thisBootstrapConfig: ConfigObject = mergeProperties([
 			await readYamlAsDocument(`${theBootstrapPath}/bootstrap.yml`, options.activeProfiles),
 			getSpringApplicationJsonFromEnv(),
-			getPredefinedEnvProperties()
+			getPropertiesFromEnv(ENV_BOOTSTRAP_PROPERTIES)
 		]);
 
 		const { error } = BootstrapConfigSchema.validate(thisBootstrapConfig, { allowUnknown: true });
@@ -128,15 +129,20 @@ export class SpringCloudConfig {
 	 * @param {CloudConfigOptions} options The config options that drive behavior here.
 	 * @returns {ConfigObject} The merged configuration properties from all sources.
 	 */
-	public async load(options: CloudConfigOptions): Promise<ConfigObject> {
-		const { error } = CloudConfigOptionsSchema.validate(options);
-		if (error !== null) { // options.bootstrapPath is optional
-			throw new Error("Invalid options supplied. Please consult the documentation.");
-		}
+	public async load(options: CloudConfigOptionsInput): Promise<ConfigObject> {
+		options = mergeProperties([options, getPropertiesFromEnv(ENV_LOAD_OPTIONS)]);
 
-		logger.level = (options.level !== undefined ? options.level : 'info');
+		const { bootstrapPath, configPath, activeProfiles, level } = options;
+		const cloudConfigOptions: CloudConfigOptions = new CloudConfigOptions(
+			bootstrapPath,
+			configPath,
+			activeProfiles,
+			level
+		);
 
-		return this.readConfig(options);
+		logger.level = cloudConfigOptions.level;
+
+		return this.readConfig(cloudConfigOptions);
 	}
 
 	public instance(): ConfigObject {

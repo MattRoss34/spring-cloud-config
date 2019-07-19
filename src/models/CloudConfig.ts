@@ -1,10 +1,20 @@
 import { RetryOptions } from "./Retry";
+import { DEFAULT_CONFIG_DIR } from "../constants";
 
-export interface CloudConfigOptions {
+export interface CloudConfigOptionsInput {
     bootstrapPath?: string;
-    configPath: string;
-    activeProfiles: string[];
+    configPath?: string;
+    activeProfiles?: string[];
     level?: string;
+}
+
+export class CloudConfigOptions {
+    constructor(
+        public bootstrapPath?: string,
+        public configPath: string = DEFAULT_CONFIG_DIR,
+        public activeProfiles: string[] = ['default'],
+        public level: string = 'info'
+    ) {}
 }
 
 export interface ConfigClientRetryOptions extends RetryOptions {}

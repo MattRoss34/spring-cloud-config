@@ -4,7 +4,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import decache from 'decache';
 import * as sinon from 'sinon';
 import { SinonStub } from 'sinon';
-import { CloudConfigOptions, ConfigObject } from '../../src';
+import { ConfigObject, CloudConfigOptionsInput } from '../../src';
 import { SpringCloudConfigServiceImpl } from '../../src/services';
 import { SpringCloudConfigGatewayImpl } from '../../src/gateways';
 import { SpringCloudConfig } from '../../src/SpringCloudConfig';
@@ -48,7 +48,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should read application config without profile-specific yaml', async function() {
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/cloudDisabled',
 				configPath: './test/fixtures/readAppConfig/singleAppYaml',
 				activeProfiles: ['dev1'],
@@ -64,7 +64,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should read application config without profiles', async function() {
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/cloudDisabled',
 				configPath: './test/fixtures/readAppConfig/multiAppYaml',
 				activeProfiles: [],
@@ -80,7 +80,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should read multi application config with profiles', async function() {
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/cloudDisabled',
 				configPath: './test/fixtures/readAppConfig/multiAppYaml',
 				activeProfiles: ['dev2'],
@@ -98,7 +98,7 @@ describe('SpringCloudConfig', function() {
 		it('should throw error if cloud config service throws an error', async function() {
 			getConfigFromServerStub.rejects(new Error('some error'));
 
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/readAppConfig/multiAppYaml',
 				activeProfiles: [],
@@ -112,7 +112,7 @@ describe('SpringCloudConfig', function() {
 		it('should succeed if cloud config service succeeds', async function() {
 			getConfigFromServerStub.resolves(defaultProfileConfig);
 
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/readAppConfig/multiAppYaml',
 				activeProfiles: [],
@@ -128,8 +128,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should fail without app config path', async function() {
-			// @ts-ignore
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				activeProfiles: []
 			};
 
@@ -138,8 +137,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should fail without activeProfiles', async function() {
-			// @ts-ignore
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				configPath: './test/fixtures/load/config',
 			};
 
@@ -148,7 +146,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should fail with invalid bootstrap path', async function() {
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './badPath/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: []
@@ -159,7 +157,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should fail with invalid app config path', async function() {
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './badPath/fixtures/load/config',
 				activeProfiles: [],
@@ -171,7 +169,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should fail with bad bootstrap config', async function() {
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/badBootstrap',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: []
@@ -183,7 +181,7 @@ describe('SpringCloudConfig', function() {
 
 		it('should succeed with no bootstrap path and same config folder', async function() {
 			getConfigFromServerStub.returns({});
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				configPath: './test/fixtures/load/configSameFolder',
 				activeProfiles: [],
 				level: 'debug'
@@ -200,7 +198,7 @@ describe('SpringCloudConfig', function() {
 
 		it('should load default configs with no profile', async function() {
 			getConfigFromServerStub.returns({});
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: [],
@@ -218,7 +216,7 @@ describe('SpringCloudConfig', function() {
 
 		it('should load default configs with app name override', async function() {
 			getConfigFromServerStub.returns({});
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/appNameConfig',
 				activeProfiles: [],
@@ -235,7 +233,7 @@ describe('SpringCloudConfig', function() {
 
 		it('should load dev configs with dev profile', async function() {
 			getConfigFromServerStub.returns({});
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: ['dev2'],
@@ -253,7 +251,7 @@ describe('SpringCloudConfig', function() {
 
 		it('should load cloud configs with default profile', async function() {
 			getConfigFromServerStub.returns(defaultProfileConfig);
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: ['default'],
@@ -273,7 +271,7 @@ describe('SpringCloudConfig', function() {
 
 		it('should load cloud configs with dev profile', async function() {
 			getConfigFromServerStub.returns(devProfileConfig);
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: ['dev1'],
@@ -308,7 +306,7 @@ describe('SpringCloudConfig', function() {
 		});
 
 		it('should return instance with defaults', async function() {
-			const options: CloudConfigOptions = {
+			const options: CloudConfigOptionsInput = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
 				activeProfiles: [],
