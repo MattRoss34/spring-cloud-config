@@ -126,23 +126,18 @@ export class SpringCloudConfig {
 		if (bootStrapConfig.spring.cloud.config.enabled) {
 			try {
 				logger.debug("Spring Cloud Options: " + JSON.stringify(bootStrapConfig.spring.cloud.config));
-				try {
-					const cloudConfigProperties: ConfigObject = 
-						await cloudConfigClient.load(bootStrapConfig.spring.cloud.config, null);
-					if (cloudConfigProperties) {
-						cloudConfigProperties.forEach(function(key, value) {
-							cloudConfig[key] = value;
-						}, false);
-						cloudConfig = parsePropertiesToObjects(cloudConfig);
-					}
-					logger.debug("Cloud Config: " + JSON.stringify(cloudConfig));
-					return cloudConfig;
-				} catch (error) {
-					logger.error("Error reading cloud config: %s", error.message);
-					return cloudConfig;
-				};
-			} catch (e) {
-				logger.error("Caught error from cloud config client: %s", e.message);
+				const cloudConfigProperties: ConfigObject = 
+					await cloudConfigClient.load(bootStrapConfig.spring.cloud.config, null);
+				if (cloudConfigProperties) {
+					cloudConfigProperties.forEach(function(key, value) {
+						cloudConfig[key] = value;
+					}, false);
+					cloudConfig = parsePropertiesToObjects(cloudConfig);
+				}
+				logger.debug("Cloud Config: " + JSON.stringify(cloudConfig));
+				return cloudConfig;
+			} catch (error) {
+				logger.error("Error reading cloud config: %s", error.message);
 				return cloudConfig;
 			}
 		} else {

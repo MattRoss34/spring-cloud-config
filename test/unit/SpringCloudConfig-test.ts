@@ -1,4 +1,6 @@
 import { assert } from 'chai';
+import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 import * as sinon from 'sinon';
 import * as SpringCloudConfig from '../../src/index';
 import * as cloudConfigClient from "cloud-config-client";
@@ -6,6 +8,11 @@ import * as cloudConfigClient from "cloud-config-client";
 describe('SpringCloudConfig', function() {
 
 	describe('#readApplicationConfig()', function() {
+
+		afterEach(() => {
+			sinon.restore();
+		});
+		
 		it('should read application config without profile-specific yaml', function() {
 			let appConfigPath = './test/fixtures/readAppConfig/singleAppYaml';
 			let activeProfiles = ['dev1'];
@@ -39,9 +46,24 @@ describe('SpringCloudConfig', function() {
 				assert.fail('an error', 'success', error.message);
 			});
 		});
+		it('should ignore error from yaml reader', function() {
+			let appConfigPath = './test/fixtures/readAppConfig/multiAppYaml';
+			let activeProfiles = ['dev2'];
+			sinon.stub(yaml, 'safeLoad').throws('testing')
+			return SpringCloudConfig.readApplicationConfig(appConfigPath, activeProfiles).then((config) => {
+				assert.isOk(true);
+			}, (error) => {
+				assert.isOk(false, 'Promise should have resolved even with error');
+			});
+		});
 	});
 
 	describe('#readCloudConfig()', function() {
+
+		afterEach(() => {
+			sinon.restore();
+		});
+
 		it('should skip cloud config when not enabled', function() {
 			let bootstrapConfig = {
 				spring: {cloud: {config: {enabled: false}}}
@@ -65,6 +87,19 @@ describe('SpringCloudConfig', function() {
 				assert.deepEqual(config, {});
 			}, (error) => {
 				assert.fail("Error", "Success", JSON.stringify(error.message));
+			});
+		});
+
+		it('should handle undefined response from client', function() {
+			sinon.stub(cloudConfigClient, 'load').resolves(undefined);
+			let bootstrapConfig = {
+				spring: {cloud: {config: {enabled: true}}}
+			};
+
+			return SpringCloudConfig.readCloudConfig(bootstrapConfig).then((config) => {
+				assert.deepEqual(config, {});
+			}, (error) => {
+				assert.fail('an error', 'success', error.message);
 			});
 		});
 	});
@@ -93,7 +128,7 @@ describe('SpringCloudConfig', function() {
 
 		it('should fail without activeProfiles', function() {
 			let options = {
-				configPath: './test/fixtures/load/config',
+				configPath: './test/fixtures/load/config'
 			}
 			// @ts-ignore
 			return SpringCloudConfig.load(options).then((config) => {
@@ -157,8 +192,7 @@ describe('SpringCloudConfig', function() {
 			let options = {
 				bootstrapPath: './test/fixtures/load/commonConfig',
 				configPath: './test/fixtures/load/config',
-				activeProfiles: [],
-				level: 'debug'
+				activeProfiles: []
 			}
 			return SpringCloudConfig.load(options).then((config) => {
 				assert.deepEqual(config.spring.cloud.config.name, 'the-application-name');
