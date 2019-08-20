@@ -195,7 +195,7 @@ describe('utils', function() {
 
 		it('should NOT use document when not operator used in doc.profiles for active profile',
 				function(done) {
-					let doc = {'profiles': 'devEast,!devWest,stagingEast'};
+					let doc = {'profiles': 'devEast,!devWest,stagingEast,'};
 					let activeProfiles = ['devEast','devWest'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), false);
 					activeProfiles = ['devWest','stagingEast'];
@@ -205,13 +205,13 @@ describe('utils', function() {
 
 		it('should use document when not operator used in doc.profiles for non-active profile',
 				function(done) {
-					let doc = {'profiles': 'devEast,devWest,!stagingEast'};
+					let doc = {'profiles': 'devEast,devWest,!stagingEast,'};
 					let activeProfiles = ['devEast','devWest'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
-					doc = {'profiles': 'devEast,!devWest,stagingEast'};
+					doc = {'profiles': 'devEast,!devWest,stagingEast,'};
 					activeProfiles = ['devEast'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
-					doc = {'profiles': '!devEast,devWest,stagingEast'};
+					doc = {'profiles': '!devEast,devWest,stagingEast,'};
 					activeProfiles = ['devWest','stagingEast'];
 					assert.deepEqual(shouldUseDocument(doc, activeProfiles), true);
 					done();

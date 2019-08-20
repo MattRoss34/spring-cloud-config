@@ -49,14 +49,16 @@ export const shouldUseDocument = (document: Document, activeProfiles?: string[])
         useThisDoc = true; // This document applies to all profiles
     else if (document && activeProfiles) {
         const documentProfiles: string[] = document.profiles.split(",");
-        for (let i=0; i < documentProfiles.length; i++) {
-            if (documentProfiles[i]) {
-                if (documentProfiles[i][0] === "!") {
-                    const excludedProfile: string = documentProfiles[i].substring(1);
-                    if (activeProfiles.indexOf(excludedProfile) >= 0)
+        for (const docProfile of documentProfiles) {
+            if (docProfile) {
+                if (docProfile[0] === "!") {
+                    const excludedProfile: string = docProfile.substring(1);
+                    if (activeProfiles.indexOf(excludedProfile) >= 0) {
                         return false; // This document should not be used
-                } else if (activeProfiles.indexOf(documentProfiles[i]) >= 0)
+                    }
+                } else if (activeProfiles.indexOf(docProfile) >= 0) {
                     useThisDoc = true; // This document applies to the profiles
+                }
             }
         }
     }
