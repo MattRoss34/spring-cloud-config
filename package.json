@@ -13,7 +13,7 @@
     "logform": "^2.1.2",
     "reflect-metadata": "^0.1.13",
     "winston": "^3.2.1",
-    "yargs": "^13.3.0"
+    "yargs": "^14.0.0"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "0.1.3",
