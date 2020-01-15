@@ -20,7 +20,7 @@
     "@types/chai": "4.2.0",
     "@types/chai-as-promised": "7.1.2",
     "@types/mocha": "5.2.7",
-    "@types/node": "12.7.2",
+    "@types/node": "12.12.22",
     "@types/sinon": "7.0.13",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
