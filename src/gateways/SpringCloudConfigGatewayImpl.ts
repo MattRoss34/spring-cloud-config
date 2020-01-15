@@ -15,7 +15,7 @@ export class SpringCloudConfigGatewayImpl {
 	 */
 	public async getConfigFromServer(configClientOptions: ConfigClientOptions): Promise<ConfigObject> {
 		let cloudConfig: ConfigObject = {};
-		const cloudConfigProperties: ConfigObject | undefined = await CloudConfigClient.load(configClientOptions, null);
+		const cloudConfigProperties: ConfigObject | undefined = await CloudConfigClient.load(configClientOptions);
 		if (cloudConfigProperties) {
 			// tslint:disable-next-line: no-any
 			cloudConfigProperties.forEach(function(key: string, value: any) {

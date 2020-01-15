@@ -21,6 +21,7 @@ export interface ConfigClientRetryOptions extends RetryOptions {}
 
 export interface ConfigClientOptions {
     enabled: boolean;
+    name: string;
     'fail-fast': boolean;
     retry?: ConfigClientRetryOptions;
 }

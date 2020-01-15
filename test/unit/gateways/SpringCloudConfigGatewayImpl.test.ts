@@ -14,8 +14,9 @@ chai.should();
 describe('SpringCloudConfigGatewayImpl', function() {
 	const sandbox = sinon.createSandbox();
 	const springCloudConfigGatewayImpl = new SpringCloudConfigGatewayImpl();
-	const defaultOptions: ConfigClientOptions = {
+	const testOptions: ConfigClientOptions = {
 		enabled: true,
+		name: 'MyTestApp',
 		'fail-fast': true
 	};
 	let cloudLoadStub: SinonStub;
@@ -34,7 +35,7 @@ describe('SpringCloudConfigGatewayImpl', function() {
 			cloudLoadStub.throws(new Error('some error'));
 
 			const getConfigFromServer: Promise<ConfigObject> =
-				springCloudConfigGatewayImpl.getConfigFromServer(defaultOptions);
+				springCloudConfigGatewayImpl.getConfigFromServer(testOptions);
 
 			return getConfigFromServer.should.eventually.be.rejected;
 		});
@@ -45,7 +46,7 @@ describe('SpringCloudConfigGatewayImpl', function() {
 			);
 
 			const getConfigFromServer: Promise<ConfigObject> =
-				springCloudConfigGatewayImpl.getConfigFromServer(defaultOptions);
+				springCloudConfigGatewayImpl.getConfigFromServer(testOptions);
 
 			return getConfigFromServer.should.eventually.be.fulfilled.then((config: ConfigObject) => {
 				assert.deepEqual(config, {});
@@ -64,7 +65,7 @@ describe('SpringCloudConfigGatewayImpl', function() {
 			);
 
 			const getConfigFromServer: Promise<ConfigObject> =
-				springCloudConfigGatewayImpl.getConfigFromServer(defaultOptions);
+				springCloudConfigGatewayImpl.getConfigFromServer(testOptions);
 
 			return getConfigFromServer.should.eventually.be.fulfilled.then((config: ConfigObject) => {
 				assert.deepEqual(config.testUrl, 'http://www.default-local.com');
