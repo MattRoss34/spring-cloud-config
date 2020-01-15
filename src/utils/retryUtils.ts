@@ -1,5 +1,5 @@
 import { logger } from ".";
-import { RetryState } from "src/models";
+import { RetryState } from "../models";
 
 /**
  * Retries a given function based on the provided retry state.
