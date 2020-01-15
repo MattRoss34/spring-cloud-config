@@ -1,6 +1,6 @@
 {
   "name": "spring-cloud-config",
-  "version": "4.6.4",
+  "version": "4.6.5",
   "description": "NodeJS application configuration using similar style to Spring Config and using the Spring Cloud Config Server for remote property sources.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -40,7 +40,8 @@
     "build": "npm run clean && tsc",
     "clean": "rm -rf dist",
     "test": "nyc mocha && nyc report --reporter=text-lcov | coveralls",
-    "test:local": "nyc mocha",
+    "test:local": "tsc && nyc mocha",
+    "coverage": "nyc npm run test:local",
     "prepublish": "npm run build",
     "doc": "jsdoc index.js -R README.md -d doc",
     "typecheck": "tsc --noEmit",
@@ -48,8 +49,11 @@
   },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
-    "all": true,
     "check-coverage": true,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+    "branches": 100,
     "require": [
       "ts-node/register",
       "source-map-support/register"
@@ -62,7 +66,8 @@
       "**/*.js",
       "**/models.ts",
       "test",
-      ".history"
+      ".history",
+      "**/webpack.config.js"
     ]
   },
   "author": "Matthew Ross",
