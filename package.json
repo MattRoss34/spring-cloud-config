@@ -40,7 +40,7 @@
     "build": "npm run clean && tsc",
     "clean": "rm -rf dist",
     "test": "nyc mocha && nyc report --reporter=text-lcov | coveralls",
-    "test:local": "tsc && nyc mocha",
+    "test:local": "nyc mocha",
     "coverage": "nyc npm run test:local",
     "prepublish": "npm run build",
     "doc": "jsdoc index.js -R README.md -d doc",
