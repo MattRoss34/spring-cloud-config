@@ -1,6 +1,6 @@
 {
   "name": "spring-cloud-config",
-  "version": "4.6.4",
+  "version": "4.6.5",
   "description": "NodeJS application configuration using similar style to Spring Config and using the Spring Cloud Config Server for remote property sources.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
