@@ -29,7 +29,7 @@
     "jsdoc": "3.6.3",
     "mocha": "6.2.2",
     "mocha-lcov-reporter": "1.3.0",
-    "nyc": "14.1.1",
+    "nyc": "15.0.0",
     "sinon": "7.5.0",
     "source-map-support": "0.5.16",
     "ts-loader": "6.0.4",
@@ -48,7 +48,7 @@
   },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
-    "all": true,
+    "all": false,
     "check-coverage": true,
     "require": [
       "ts-node/register",
