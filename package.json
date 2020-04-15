@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@hapi/joi": "^15.1.0",
+    "@hapi/joi": "^17.0.0",
     "extend": "^3.0.2",
     "inversify": "^5.0.1",
     "js-yaml": "^3.12.0",
