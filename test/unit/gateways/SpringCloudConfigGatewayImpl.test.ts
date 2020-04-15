@@ -5,7 +5,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as sinon from 'sinon';
 import { SinonStub } from 'sinon';
 import { ConfigObject, ConfigClientOptions } from '../../../src';
-import * as CloudConfigClient from 'cloud-config-client';
+import * as CloudConfigClient from 'nice-cloud-config-client';
 import { SpringCloudConfigGatewayImpl } from '../../../src/gateways';
 
 chai.use(chaiAsPromised);
@@ -16,6 +16,7 @@ describe('SpringCloudConfigGatewayImpl', function() {
 	const springCloudConfigGatewayImpl = new SpringCloudConfigGatewayImpl();
 	const defaultOptions: ConfigClientOptions = {
 		enabled: true,
+		name: 'test-app',
 		'fail-fast': true
 	};
 	let cloudLoadStub: SinonStub;

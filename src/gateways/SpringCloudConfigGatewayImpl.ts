@@ -1,5 +1,5 @@
 
-import * as CloudConfigClient from 'cloud-config-client';
+import * as CloudConfigClient from 'nice-cloud-config-client';
 import { ConfigClientOptions, ConfigObject } from '../models';
 import { injectable } from 'inversify';
 import { parsePropertiesToObjects } from '../utils';
@@ -15,7 +15,7 @@ export class SpringCloudConfigGatewayImpl {
 	 */
 	public async getConfigFromServer(configClientOptions: ConfigClientOptions): Promise<ConfigObject> {
 		let cloudConfig: ConfigObject = {};
-		const cloudConfigProperties: ConfigObject | undefined = await CloudConfigClient.load(configClientOptions, null);
+		const cloudConfigProperties: ConfigObject | undefined = await CloudConfigClient.load(configClientOptions, undefined);
 		if (cloudConfigProperties) {
 			// tslint:disable-next-line: no-any
 			cloudConfigProperties.forEach(function(key: string, value: any) {
