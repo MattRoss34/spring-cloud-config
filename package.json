@@ -13,7 +13,7 @@
     "nice-cloud-config-client": "^1.0.1",
     "reflect-metadata": "^0.1.13",
     "winston": "^3.2.1",
-    "yargs": "^13.3.0"
+    "yargs": "^15.1.0"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.1",
